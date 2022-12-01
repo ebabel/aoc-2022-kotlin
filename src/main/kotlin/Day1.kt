@@ -14,8 +14,13 @@ fun main(args: Array<String>) {
     }
     list.sortDescending()
 
-    println( "Part 1: ${list.first()}")
-    println( "Part 2: ${list.take(3).sum()}")
+    val part1Solution = list.first()
+    check(part1Solution == 74711)
+    println( "Part 1: $part1Solution")
+
+    val part2Solution = list.take(3).sum()
+    check(part2Solution == 209481)
+    println( "Part 2: $part2Solution")
 
 }
 
