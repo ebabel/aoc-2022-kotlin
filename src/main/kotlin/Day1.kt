@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
 
 }
 
-val input =
+private val input =
 """
 8890
 13468
