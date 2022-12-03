@@ -7,33 +7,37 @@ fun main(args: Array<String>) {
         val myThrow: Int = needToDo(round[1]).invoke(scoreForShape(round[0]))
         val scoreForOutcome = scoreForShape(round[1])
 
-        println( "$it $myThrow ${needToDoScore(round[1])}")
-        myThrow + needToDoScore(round[1])
-    }.also { println(it.sum()) }
-}
+//        println( "$it $myThrow ${needToDoScore(round[1])}")
+        myThrow + scoreForOutcome(round[0],round[1])
+    }.also { println("part1: ${it.sum()}") }
 
+    input.lines().map {
+        val round = it.split(" ")
+
+
+        val myThrow: Int = needToDo(round[1]).invoke(scoreForShape(round[0]))
+        val scoreForOutcome = scoreForShape(round[1])
+
+//        println( "$it $myThrow ${needToDoScore(round[1])}")
+        myThrow + needToDoScore(round[1])
+    }.also { println("part2: ${it.sum()}") }
+}
 fun needToDo(letter: String): ((Int)->Int) {
     return when (letter) {
-
         "X" -> ::lose // lose
         "Y" -> ::draw // draw
         "Z" -> ::win // win
-
         else -> error("")
     }
 }
-
 fun needToDoScore(letter: String): Int {
     return when (letter) {
-
         "X" -> 0 // lose
         "Y" -> 3 // draw
         "Z" -> 6 // win
-
         else -> error("")
     }
 }
-
 fun lose(shape: Int): Int {
     return when (shape) {
         1 -> 3
