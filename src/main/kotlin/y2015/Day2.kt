@@ -1,3 +1,5 @@
+package y2015
+
 fun main(args: Array<String>) {
 
     val total = input.lines().map {
