@@ -3,22 +3,62 @@ import java.security.MessageDigest
 
 fun main(args: Array<String>) {
 
-    check("ugknbfddgicrmopn".isNice())
-    check("aaa".isNice())
-    check(!"abaaa".isNice())
-    check(!"cccc".isNice())
-    check(!"jchzalrnumimnmhp".isNice())
-    check(!"haegwjzuvuyypxyu".isNice())
-    check(!"dvszwmarrgswjxmb".isNice())
+    check("ugknbfddgicrmopn".isNice1())
+    check("aaa".isNice1())
+    check(!"abaaa".isNice1())
+    check(!"cccc".isNice1())
+    check(!"jchzalrnumimnmhp".isNice1())
+    check(!"haegwjzuvuyypxyu".isNice1())
+    check(!"dvszwmarrgswjxmb".isNice1())
 
-    input.lines().forEach {
-//        println("$it ${it.isNice()}")
-    }
+    println("Part 1:")
+    println( input.lines().filter { it.isNice1() }.size)
 
-    println( input.lines().filter { it.isNice() }.size)
+    check("qjhvhtzxzqqjkmpb".isNice2())
+    check(!"aaaxa".isNice2())
+    check("xxyxx".isNice2())
+    check(!"uurcxstgmygtbstg".isNice2())
+    check(!"ieodomkazucvgmuy".isNice2())
+
+    println("Part 2:")
+    println( input.lines().filter { it.isNice2() }.size)
 }
 
-fun String.isNice(): Boolean {
+fun String.isNice2(): Boolean {
+    var latestMatchIndex = -1
+    var matchesCount = 0
+    val firstCheck = windowedIndexed(2,1) { index, charSequence ->
+        val before = take(index).contains(charSequence)
+        val after = substring(index+1).contains(charSequence)
+
+//        println("$this $index $charSequence before $before after $after ${substring(index+1)}")
+        before || after
+    }.filter { it }
+        .size > 1
+
+    val secondCheck = windowed(3, 1) {
+        it[0] == it[2]
+    }.filter { it }.isNotEmpty()
+
+
+    return firstCheck && secondCheck
+}
+
+public fun <R> CharSequence.windowedIndexed(size: Int, step: Int = 1, partialWindows: Boolean = false, transform: (Int, CharSequence) -> R): List<R> {
+    val thisSize = this.length
+    val resultCapacity = thisSize / step + if (thisSize % step == 0) 0 else 1
+    val result = ArrayList<R>(resultCapacity)
+    var index = 0
+    while (index in 0 until thisSize) {
+        val end = index + size
+        val coercedEnd = if (end < 0 || end > thisSize) { if (partialWindows) thisSize else break } else end
+        result.add(transform(index,subSequence(index, coercedEnd)))
+        index += step
+    }
+    return result
+}
+
+fun String.isNice1(): Boolean {
     val vowelCount = count {
         it == 'a' ||
         it == 'e' ||
@@ -32,9 +72,9 @@ fun String.isNice(): Boolean {
     val hasBadStrings = listOf("ab", "cd", "pq","xy").any { this.contains(it) }
     // haegwjzuvuyypxyu
     val isNice = vowelCount >= 3 && repeatingCount >= 1 && !hasBadStrings
-    if (repeatingCount == 0) {
-        println("$this $vowelCount $repeatingCount $hasBadStrings $isNice")
-    }
+//    if (repeatingCount == 0) {
+//        println("$this $vowelCount $repeatingCount $hasBadStrings $isNice")
+//    }
 
     return isNice
 
