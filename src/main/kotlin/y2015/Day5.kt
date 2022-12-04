@@ -1,8 +1,5 @@
 package y2015
 
-import java.math.BigInteger
-import java.security.MessageDigest
-
 fun main(args: Array<String>) {
 
     check("ugknbfddgicrmopn".isNice1())
