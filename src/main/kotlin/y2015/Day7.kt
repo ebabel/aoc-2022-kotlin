@@ -1,192 +1,51 @@
 package y2015
 
-import java.util.Arrays
-import java.util.LinkedList
-import java.util.Queue
-
 fun main(args: Array<String>) {
-
-    part1()
-    part2()
-
-}
-
-fun toIntOrFromMap(map: MutableMap<String, Int>, s: String): Int {
-    return if (s.toIntOrNull() != null) {
-        s.toInt()
-    } else {
-        map[s]!!
+    val varMap = input.lines().associate { line ->
+        val commands = line.split(" ")
+        commands.last() to line.substringBefore(" ->")
     }
+    val a = resolveFromVarMap(varMap.toMutableMap(), "e")
+    println("Part 1: $a")
+    println("Part 2: " + resolveFromVarMap(varMap.toMutableMap().also {
+        it["b"] = a
+    }, "a"))
+
+
 }
 
-tailrec fun factorial(n: Int, run: Int = 1): Long {
-    return if (n == 1) run.toLong() else factorial(n - 1, run * n)
-}
-
-fun resolveFromVarMap(map: MutableMap<String, String>, key: String, counter: Int = 0): String {
-//    println("resolving $key $counter")
+fun resolveFromVarMap(map: MutableMap<String, String>, key: String, chain: String = ""): String {
+//    println("resolving $key")
     return if (key.contains("OR")) {
         val split = key.split(" ")
-        val first = resolveFromVarMap(map, split[0], counter + 1)
-//        println("first = $first")
-        (first.toInt() or resolveFromVarMap(map, split[2], counter + 1).toInt()).toString()
+        (resolveFromVarMap(map, split[0], "$key $chain,").toInt() or resolveFromVarMap(map, split[2], "$key $chain,").toInt()).toString()
     } else if (key.contains("AND")) {
         val split = key.split(" ")
-        (resolveFromVarMap(map, split[0], counter + 1).toInt() and resolveFromVarMap(
+        (resolveFromVarMap(map, split[0], "$key $chain,").toInt() and resolveFromVarMap(
             map,
-            split[2],
-            counter + 1
+            split[2], "$key $chain,"
         ).toInt()).toString()
     } else if (key.contains("NOT")) {
         val split = key.split(" ")
-        (resolveFromVarMap(map, split[1], counter + 1).toInt() xor 65535).toString()
+        (resolveFromVarMap(map, split[1], "$key $chain,").toInt() xor 65535).toString()
     } else if (key.contains("RSHIFT")) {
         val split = key.split(" ")
-        resolveFromVarMap(map, split[0], counter + 1).toInt().shr(split[2].toInt()).toString()
+        resolveFromVarMap(map, split[0], "$key $chain,").toInt().shr(split[2].toInt()).toString()
     } else if (key.contains("LSHIFT")) {
         val split = key.split(" ")
-        resolveFromVarMap(map, split[0], counter + 1).toInt().shl(split[2].toInt()).toString()
+        resolveFromVarMap(map, split[0], "$key $chain,").toInt().shl(split[2].toInt()).toString()
     } else if (key.toIntOrNull() != null) {
-//        println("$key is number")
         key
     } else if (map[key] != null) {
-//        println("for $key resolving ${map[key]}")
-
-        resolveFromVarMap(map, map[key]!!, counter + 1).also {
+        resolveFromVarMap(map, map[key]!!, "$key $chain,").also {
             map[key] = it
         }
     } else {
         error("Nothing found for $key")
-//        val split = key.split(" ")
-//
-////        println("splitting $key $split")
-//        split.forEach {
-//            resolveFromVarMap(map, it)
-//        }
-////        split.forEach {
-////            resolveFromVarMap(map, it)
-////        }
-//        "Nothing found for $key"
+
     }//.also { println("$key resolved to $it") }
 }
 
-private fun part1() {
-    var tempInt = 0
-    val varMap = input.lines().associate { line ->
-        val commands = line.split(" ")
-        commands.last() to line.substringBefore(" ->")
-    }.also(::println)
-
-    val a = resolveFromVarMap(varMap.toMutableMap(), "a")
-    println(a)
-    println(resolveFromVarMap(varMap.toMutableMap().also {
-        it["b"] = a
-    }, "a"))
-
-//    var didSubs = true
-//    while (didSubs) {
-//        didSubs = false
-//        varMap.forEach { varMapEntry ->
-//            varMap[varMapEntry.key] = varMapEntry.value.split(" ").map {
-//                if (!listOf("NOT", "OR", "LSHIFT", "RSHIFT", "AND").contains(it) && it.toIntOrNull() == null) {
-////                    println("substituting $it for ${varMap[it]}")
-//                    didSubs = true
-//                    varMap[it]
-//                } else {
-//                    it
-//                }
-//            }.joinToString(" ")
-//        }//.also(::println)
-//        //println("")
-//    }
-
-    println(varMap)
-
-//    val commandQueue = LinkedList<String>()
-//    commandQueue.add("e")
-//
-//    while (commandQueue.isNotEmpty()) {
-//
-//        var first = commandQueue.pollFirst()
-//
-//        val resolved = varMap[first]
-//        if (resolved != null) {
-//            println("resolved $first as $resolved")
-//            commandQueue.addAll(0, resolved.split(" "))
-//        } else if (first.toIntOrNull() != null) {
-//            tempInt = first.toInt()
-//            println("new tempInt= $tempInt")
-//        } else if (first == "OR") {
-//            val nextIsNum = commandQueue.peekFirst().toIntOrNull() != null
-//            if (nextIsNum) {
-//                tempInt = commandQueue.pollFirst().toInt() or tempInt
-//                println("did OR, new tempInt= $tempInt")
-//            } else {
-//                println("couldn't do OR")
-//                commandQueue.addFirst("skipOR")
-//            }
-//        } else {
-//            println("$first not resolved")
-//        }
-//
-//
-//        println(commandQueue.joinToString())
-//        println("tempInt $tempInt")
-//        println("---")
-//    }
-
-
-//    input.lines().forEach { line ->
-//        val commands = line.split(" ")
-//        if (commands.last() == "a") println(line)
-//        when {
-//            commands[0].toIntOrNull() != null -> {
-//                map.put(commands.last(), commands.first().toInt())
-//            }
-//
-//            commands.first() == "NOT" -> {
-//                val toIntOrFromMap = toIntOrFromMap(map, commands[1])
-//                val x = toIntOrFromMap xor 65535
-//                map.put(commands.last(), x)
-//            }
-//
-//            commands[1] == "AND" -> {
-//                val x = toIntOrFromMap(map, commands[0])
-//                val y = toIntOrFromMap(map, commands[2])
-//                val result = x and y
-//                map.put(commands.last(), result)
-//            }
-//            commands[1] == "OR" -> {
-//                val x = toIntOrFromMap(map, commands[0])
-//                val y = toIntOrFromMap(map, commands[2])
-//                val result = x or y
-//                map.put(commands.last(), result)
-//            }
-//            commands[1] == "LSHIFT" -> {
-//                val x = toIntOrFromMap(map, commands[0])
-//                val y = toIntOrFromMap(map, commands[2])
-//                val result = x.shl(y)
-//                map.put(commands.last(), result)
-//            }
-//            commands[1] == "RSHIFT" -> {
-//                val x = toIntOrFromMap(map, commands[0])
-//                val y = toIntOrFromMap(map, commands[2])
-//                val result = x.shr(y)
-//                map.put(commands.last(), result)
-//            }
-//
-//            else -> {
-//                error("$line")
-//            }
-//        }
-
-//    map.forEach(::println)
-}
-
-
-private fun part2() {
-
-}
 
 
 private val testinput = """
