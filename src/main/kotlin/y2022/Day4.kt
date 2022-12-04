@@ -1,28 +1,41 @@
 fun main(args: Array<String>) {
 
-    input.lines().map { line ->
-        val assignments = line.split(",")
-        val firstLow = assignments.first().split("-").first().toInt()
-        val firstHigh = assignments.first().split("-")[1].toInt()
-        val secondLow = assignments[1].split("-").first().toInt()
-        val secondHigh = assignments[1].split("-")[1].toInt()
 
-        val firstEnvelopes = firstLow <= secondLow && firstHigh >= secondHigh
-        val secondEnvelopes = secondLow <= firstLow && secondHigh >= firstHigh
-        val a: Boolean = firstEnvelopes || secondEnvelopes
-        a.also { println("$line $it $firstEnvelopes $secondEnvelopes $firstLow <= $secondLow ${firstLow <= secondLow}") }
-    }.count { it }.also(::println)
+    envelopes(testInput, 2)
+    envelopes(input, 569)
 
-    input.lines().map { line ->
-        val assignments = line.split(",")
-        val firstLow = assignments.first().split("-").first().toInt()
-        val firstHigh = assignments.first().split("-")[1].toInt()
-        val secondLow = assignments[1].split("-").first().toInt()
-        val secondHigh = assignments[1].split("-")[1].toInt()
+    anyOverlap(testInput, 4)
+    anyOverlap(input, 936)
 
-        firstLow.rangeTo(firstHigh).intersect(secondLow.rangeTo(secondHigh)).any()
+}
+private fun envelopes(input1: String, i: Int) {
+    input1.lines().count { line ->
+        line.split(",")
+            .map {
+                it
+                    .split("-")
+                    .map { it.toInt() }
+                    .let { (a, b) -> (a..b).toSet() }
+            }
+            .let { (a, b) ->
+                a.containsAll(b) || b.containsAll(a)
+            }
+    }.also(::println).also { check(it == i) }
+}
 
-    }.count { it }.also(::println)
+private fun anyOverlap(input1: String, i: Int) {
+    input1.lines().count { line ->
+        line.split(",")
+            .map {
+                it
+                    .split("-")
+                    .map { it.toInt() }
+                    .let { (a, b) -> (a..b).toSet() }
+            }
+            .let { (a, b) ->
+                a.intersect(b).any()
+            }
+    }.also(::println).also { check(it == i) }
 }
 
 private val testInput =
