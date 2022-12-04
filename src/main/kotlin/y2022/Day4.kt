@@ -1,5 +1,6 @@
-fun main(args: Array<String>) {
+package y2022
 
+fun main(args: Array<String>) {
 
     envelopes(testInput, 2)
     envelopes(input, 569)

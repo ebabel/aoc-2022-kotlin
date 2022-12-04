@@ -1,3 +1,5 @@
+package y2022
+
 fun main(args: Array<String>) {
 
 }
