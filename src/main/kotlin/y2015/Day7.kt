@@ -20,35 +20,39 @@ fun toIntOrFromMap(map: MutableMap<String, Int>, s: String): Int {
 }
 
 tailrec fun factorial(n: Int, run: Int = 1): Long {
-    return if (n == 1) run.toLong() else factorial(n-1, run*n)
+    return if (n == 1) run.toLong() else factorial(n - 1, run * n)
 }
 
 fun resolveFromVarMap(map: MutableMap<String, String>, key: String, counter: Int = 0): String {
 //    println("resolving $key $counter")
     return if (key.contains("OR")) {
         val split = key.split(" ")
-        val first = resolveFromVarMap(map, split[0], counter+1)
+        val first = resolveFromVarMap(map, split[0], counter + 1)
 //        println("first = $first")
-        (first.toInt() or resolveFromVarMap(map, split[2], counter+1).toInt()).toString()
+        (first.toInt() or resolveFromVarMap(map, split[2], counter + 1).toInt()).toString()
     } else if (key.contains("AND")) {
         val split = key.split(" ")
-        (resolveFromVarMap(map, split[0], counter+1).toInt() and resolveFromVarMap(map, split[2], counter+1).toInt()).toString()
+        (resolveFromVarMap(map, split[0], counter + 1).toInt() and resolveFromVarMap(
+            map,
+            split[2],
+            counter + 1
+        ).toInt()).toString()
     } else if (key.contains("NOT")) {
         val split = key.split(" ")
-        (resolveFromVarMap(map, split[1], counter+1).toInt() xor 65535).toString()
+        (resolveFromVarMap(map, split[1], counter + 1).toInt() xor 65535).toString()
     } else if (key.contains("RSHIFT")) {
         val split = key.split(" ")
-        resolveFromVarMap(map, split[0], counter+1).toInt().shr(split[2].toInt()).toString()
+        resolveFromVarMap(map, split[0], counter + 1).toInt().shr(split[2].toInt()).toString()
     } else if (key.contains("LSHIFT")) {
         val split = key.split(" ")
-        resolveFromVarMap(map, split[0], counter+1).toInt().shl(split[2].toInt()).toString()
+        resolveFromVarMap(map, split[0], counter + 1).toInt().shl(split[2].toInt()).toString()
     } else if (key.toIntOrNull() != null) {
 //        println("$key is number")
         key
     } else if (map[key] != null) {
 //        println("for $key resolving ${map[key]}")
 
-        resolveFromVarMap(map,map[key]!!, counter+1).also {
+        resolveFromVarMap(map, map[key]!!, counter + 1).also {
             map[key] = it
         }
     } else {
@@ -73,15 +77,11 @@ private fun part1() {
         commands.last() to line.substringBefore(" ->")
     }.also(::println)
 
-
-    println(resolveFromVarMap(varMap.toMutableMap(),"a"))
-
-
-
-
-
-
-
+    val a = resolveFromVarMap(varMap.toMutableMap(), "a")
+    println(a)
+    println(resolveFromVarMap(varMap.toMutableMap().also {
+        it["b"] = a
+    }, "a"))
 
 //    var didSubs = true
 //    while (didSubs) {
