@@ -9,6 +9,6 @@ private val testInput =
 
 """.trimIndent()
 private val input =
-    """
-
+"""
+    
 """.trimIndent()
