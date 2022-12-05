@@ -3,10 +3,16 @@ package y2022
 import java.util.LinkedList
 
 fun main(args: Array<String>) {
+//    part1()
+    part2()
+
+}
+
+private fun part1() {
     var numStacks: Int = -1
     val stacks = mutableListOf<LinkedList<Char>>()
     var isSetup = true
-    input.lines().forEach {line ->
+    input.lines().forEach { line ->
         if (numStacks < 0) {
             numStacks = (line.length + 1) / 4
         } else {
@@ -32,6 +38,46 @@ fun main(args: Array<String>) {
             (1..quantity).forEach {
                 stacks[destination].addFirst(stacks[source].pollFirst())
             }
+        }
+    }
+
+    stacks.forEach {
+        println(it)
+    }
+
+    stacks.map { it.peekFirst() }.joinToString("").also(::println)
+}
+private fun part2() {
+    var numStacks: Int = -1
+    val stacks = mutableListOf<LinkedList<Char>>()
+    var isSetup = true
+    input.lines().forEach { line ->
+        if (numStacks < 0) {
+            numStacks = (line.length + 1) / 4
+        } else {
+            isSetup = false
+        }
+        if (line.contains("[")) {
+            line.chunked(4).forEachIndexed { index, s ->
+                if (isSetup) {
+                    stacks.add(LinkedList())
+                }
+                if (s.isNotBlank()) {
+                    stacks[index].add(s[1])
+                }
+            }
+        }
+
+        if (line.startsWith("move")) {
+            val commands = line.split(" ")
+            val quantity = commands[1].toInt()
+            val source = commands[3].toInt() - 1
+            val destination = commands.last().toInt() - 1
+            stacks[destination].addAll(0,
+                (1..quantity).map {
+                    stacks[source].pollFirst()
+                }
+            )
         }
     }
 
