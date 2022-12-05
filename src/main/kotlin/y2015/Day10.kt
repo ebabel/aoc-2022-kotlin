@@ -1,14 +1,16 @@
 package y2015
 
-private const val QUOTE = "\""
-private const val BACKSLASH = "\\"
+private const val CONWAYS_CONSTANT = 1.303577269034296
 fun main(args: Array<String>) {
 
 
-    lookAndSay(5, testInput)
+//    lookAndSay(5, testInput)
 //    lookAndSay(40, input)
 //    lookAndSay(50, input)
 
+    var i = input.length.toDouble()
+    repeat(40) { i *= CONWAYS_CONSTANT }
+    println("i $i")
 }
 
 private fun lookAndSay(timesToRun: Int, input: String) {
