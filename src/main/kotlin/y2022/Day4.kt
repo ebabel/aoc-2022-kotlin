@@ -13,8 +13,7 @@ private fun envelopes(input1: String, i: Int) {
     input1.lines().count { line ->
         line.split(",")
             .map {
-                it
-                    .split("-")
+                it.split("-")
                     .map { it.toInt() }
                     .let { (a, b) -> (a..b).toSet() }
             }
@@ -28,8 +27,7 @@ private fun anyOverlap(input1: String, i: Int) {
     input1.lines().count { line ->
         line.split(",")
             .map {
-                it
-                    .split("-")
+                it.split("-")
                     .map { it.toInt() }
                     .let { (a, b) -> (a..b).toSet() }
             }
