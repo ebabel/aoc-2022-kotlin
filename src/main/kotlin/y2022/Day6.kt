@@ -2,25 +2,18 @@ package y2022
 
 import java.util.LinkedList
 
-fun main(args: Array<String>) {
-//    part1()
-    part2()
-
+fun main() {
+    check(runSolution(::moveEach) == "GRTSWNJHH")
+    check(runSolution(::moveAll) == "QLFQDBBHM")
 }
 
-private fun part1() {
-    var numStacks: Int = -1
-    val stacks = mutableListOf<LinkedList<Char>>()
-    var isSetup = true
-    input.lines().forEach { line ->
-        if (numStacks < 0) {
-            numStacks = (line.length + 1) / 4
-        } else {
-            isSetup = false
-        }
+private val stacks = mutableListOf<LinkedList<Char>>()
+private fun runSolution(instruction: (Int, Int, Int)-> Unit): String {
+    stacks.clear()
+    input.lines().forEachIndexed { lineIndex, line ->
         if (line.contains("[")) {
             line.chunked(4).forEachIndexed { index, s ->
-                if (isSetup) {
+                if (lineIndex == 0) {
                     stacks.add(LinkedList())
                 }
                 if (s.isNotBlank()) {
@@ -30,62 +23,34 @@ private fun part1() {
         }
 
         if (line.startsWith("move")) {
-            val commands = line.split(" ")
-            val quantity = commands[1].toInt()
-            val source = commands[3].toInt() - 1
-            val destination = commands.last().toInt() - 1
-
-            (1..quantity).forEach {
-                stacks[destination].addFirst(stacks[source].pollFirst())
-            }
+            val (quantity, source, destination) =
+                """move (\d+) from (\d+) to (\d+)"""
+                    .toRegex()
+                    .matchEntire(line)!!
+                    .destructured
+            instruction.invoke(destination.toInt() - 1, quantity.toInt(), source.toInt() - 1)
         }
     }
 
-    stacks.forEach {
-        println(it)
-    }
-
-    stacks.map { it.peekFirst() }.joinToString("").also(::println)
+    return stacks.map { it.peekFirst() }.joinToString("").also(::println)
 }
-private fun part2() {
-    var numStacks: Int = -1
-    val stacks = mutableListOf<LinkedList<Char>>()
-    var isSetup = true
-    input.lines().forEach { line ->
-        if (numStacks < 0) {
-            numStacks = (line.length + 1) / 4
-        } else {
-            isSetup = false
+private fun moveEach(
+    destination: Int,
+    quantity: Int,
+    source: Int
+) = repeat(quantity) {
+    stacks[destination].addFirst(stacks[source].pollFirst())
+}
+private fun moveAll(
+    destination: Int,
+    quantity: Int,
+    source: Int
+) {
+    stacks[destination].addAll(0,
+        (1..quantity).map {
+            stacks[source].pollFirst()
         }
-        if (line.contains("[")) {
-            line.chunked(4).forEachIndexed { index, s ->
-                if (isSetup) {
-                    stacks.add(LinkedList())
-                }
-                if (s.isNotBlank()) {
-                    stacks[index].add(s[1])
-                }
-            }
-        }
-
-        if (line.startsWith("move")) {
-            val commands = line.split(" ")
-            val quantity = commands[1].toInt()
-            val source = commands[3].toInt() - 1
-            val destination = commands.last().toInt() - 1
-            stacks[destination].addAll(0,
-                (1..quantity).map {
-                    stacks[source].pollFirst()
-                }
-            )
-        }
-    }
-
-    stacks.forEach {
-        println(it)
-    }
-
-    stacks.map { it.peekFirst() }.joinToString("").also(::println)
+    )
 }
 
 private val testInput =
@@ -101,7 +66,7 @@ move 2 from 2 to 1
 move 1 from 1 to 2
 """.trimIndent()
 private val input =
-"""
+    """
 [N] [G]                     [Q]    
 [H] [B]         [B] [R]     [H]    
 [S] [N]     [Q] [M] [T]     [Z]    
