@@ -8,7 +8,7 @@ fun main() {
 }
 
 private val stacks = mutableListOf<LinkedList<Char>>()
-private fun runSolution(instruction: (Int, Int, Int)-> Unit): String {
+private fun runSolution(instruction: (Int, Int, Int) -> Unit): String {
     stacks.clear()
     input.lines().forEachIndexed { lineIndex, line ->
         if (line.contains("[")) {
@@ -25,15 +25,14 @@ private fun runSolution(instruction: (Int, Int, Int)-> Unit): String {
         if (line.startsWith("move")) {
             val (quantity, source, destination) =
                 """move (\d+) from (\d+) to (\d+)"""
-                    .toRegex()
-                    .matchEntire(line)!!
-                    .destructured
-            instruction.invoke(destination.toInt() - 1, quantity.toInt(), source.toInt() - 1)
+                    .toRegex().matchEntire(line)!!.destructured.toList().map { it.toInt() }
+            instruction.invoke(destination - 1, quantity, source - 1)
         }
     }
 
     return stacks.map { it.peekFirst() }.joinToString("").also(::println)
 }
+
 private fun moveEach(
     destination: Int,
     quantity: Int,
@@ -41,6 +40,7 @@ private fun moveEach(
 ) = repeat(quantity) {
     stacks[destination].addFirst(stacks[source].pollFirst())
 }
+
 private fun moveAll(
     destination: Int,
     quantity: Int,
