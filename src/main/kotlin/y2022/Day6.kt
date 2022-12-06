@@ -1,13 +1,18 @@
 package y2022
 
+
+
 fun main(args: Array<String>) {
 
 }
 
+
+
+
 private val testInput =
     """
-
-""".trimIndent()
+        
+    """.trimIndent()
 private val input =
     """
 
