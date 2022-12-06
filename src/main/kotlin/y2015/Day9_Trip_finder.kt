@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
 data class Fare (val from: String, val to: String, val time: Int, val destinations: List<String>)
 
 
-val solutionList = mutableListOf<Int>()
+private val solutionList = mutableListOf<Int>()
 private fun part1(testInput1: String) {
     solutionList.clear()
     val mutableMap = mutableMapOf<String, Int>()
@@ -31,7 +31,7 @@ private fun part1(testInput1: String) {
 
     fun buildTrip(destinations: List<String>, tripSoFar: List<String>, time: Int = 0) {
         if (destinations.isEmpty()) {
-//            println("$tripSoFar $time")
+            println("$tripSoFar $time")
             solutionList.add(time)
         }
         destinations.forEach {
@@ -52,12 +52,6 @@ private fun part1(testInput1: String) {
 
 }
 
-
-private fun part2(testInput1: String) {
-    testInput1.lines().map { line ->
-
-    }
-}
 
 private val testInput =
     """
