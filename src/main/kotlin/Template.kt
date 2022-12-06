@@ -1,5 +1,3 @@
-package y2022
-
 fun main(args: Array<String>) {
 
     println("Part1 test ${part1(testInput)}")
@@ -8,12 +6,12 @@ fun main(args: Array<String>) {
     println("Part2 real ${part2(input)}")
 }
 
-fun part1(input: String): String {
+private fun part1(input: String): String {
 
     return "result"
 }
 
-fun part2(input: String): String {
+private fun part2(input: String): String {
 
     return "result"
 }
