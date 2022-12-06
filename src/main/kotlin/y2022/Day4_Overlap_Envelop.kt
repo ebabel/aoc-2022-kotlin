@@ -2,14 +2,14 @@ package y2022
 
 fun main(args: Array<String>) {
 
-    envelopes(testInput, 2)
-    envelopes(input, 569)
+    envelops(testInput, 2)
+    envelops(input, 569)
 
     anyOverlap(testInput, 4)
     anyOverlap(input, 936)
 
 }
-private fun envelopes(input1: String, i: Int) {
+private fun envelops(input1: String, i: Int) {
     input1.lines().count { line ->
         line.split(",")
             .map {
