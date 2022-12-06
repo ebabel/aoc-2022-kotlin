@@ -18,26 +18,27 @@ private data class Ingredient(
 )
 
 private data class Cookie(
-    val ingredients: Map<Ingredient, Int>
+    val ingredients: List<Int> // indexed by ingredient ie Butterscotch is 0, Cinnamon is 1
 ) {
-    fun score(): Int {
-        return maxOf(0, ingredients.map {
-            it.key.capacity * it.value
-        }.sum()) * maxOf(0, ingredients.map {
-            it.key.durability * it.value
-        }.sum()) * maxOf(0, ingredients.map {
-            it.key.flavor * it.value
-        }.sum()) * maxOf(0, ingredients.map {
-            it.key.texture * it.value
+    fun score(ingredientsLookup: List<Ingredient>): Int {
+        return maxOf(0, ingredients.mapIndexed {index, quantity ->
+            quantity * ingredientsLookup[index].capacity
+        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+            quantity * ingredientsLookup[index].durability
+        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+            quantity * ingredientsLookup[index].flavor
+        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+            quantity * ingredientsLookup[index].texture
         }.sum())
     }
-    fun ingredients(): Int = ingredients.values.sum()
+    fun ingredients(): Int = ingredients.sum()
+
 }
 
 private fun part1(input: String): String {
 
     var nameIndex = 0
-    val ingredients = input.lines().map { it.split(" ") }.map { line ->
+    val ingredientsLookup = input.lines().map { it.split(" ") }.map { line ->
         Ingredient(
             name = nameIndex++,//line.first().dropLast(1),
             capacity = line[2].dropLast(1).toInt(),
@@ -48,58 +49,70 @@ private fun part1(input: String): String {
         )
     }
 
-    Cookie(mapOf(ingredients[0] to 44, ingredients[1] to 56)).ingredients.values.joinToString(",").also(::println)
+//    Cookie(listOf(44,56)).ingredients.joinToString(",").also(::println)
 
-    val cookie = mutableMapOf<Ingredient, Int>()
+    var mockup = List<Int>(ingredientsLookup.size) {1}
 
-    fun buildPermutations(cookies: List<Cookie>, ingredients: List<Ingredient>): List<Cookie> {
-        if (ingredients.isEmpty()) {
-            return cookies
-        }
-        val ingredient = ingredients.first()
-        println("Ingredient: ${ingredient.name} Cookies: ${cookies.size} ingredients: ${ingredients.size}")
-        val newIngredientList = ingredients.minus(ingredient)
-
-        return if (cookies.isEmpty()) {
-            (0..100).flatMap { secondIterator ->
-                buildPermutations(cookies.plus(Cookie(mapOf(ingredient to secondIterator))), newIngredientList)
-            }
-        } else {
-            cookies.flatMap { cookie ->
-                (0..100).flatMap { secondIterator ->
-                    if (cookie.ingredients() + secondIterator <= 100) {
-                        val newCookie = Cookie(cookie.ingredients.plus(ingredient to secondIterator))
-                        println("newCookie: ${newCookie.ingredients.values.joinToString(",")}")
-                        buildPermutations(cookies.plus(newCookie), newIngredientList)
-                    } else {
-                        emptyList()
-                    }
-                }.filter { cookie ->
-                    cookie.ingredients.map { it.value }.sum() <= 100
-                }
-            }
+    (1..100-ingredientsLookup.size).fold(mockup) { acc, indx ->
+        List(ingredientsLookup.size) { index ->
+            val newList = acc.toMutableList()
+            newList[index]++
+            val cookie = Cookie(newList)
+            cookie
+        }.maxBy { it.score(ingredientsLookup) }.let {
+            it.ingredients
         }
 
+    }.also {
+        return "${it.joinToString(",")} ${Cookie(it).score(ingredientsLookup)}"
     }
 
-    buildPermutations(
-        emptyList(),
-        ingredients
-    )
-        .also{ println("size before filter: ${it.size}") }
-        .filter { cookie -> cookie.ingredients.map { it.value }.sum() == 100 }
-        .also{ println("size after filter: ${it.size}") }
-//        .forEach { it.ingredients.also(::println) }
-    .maxBy { it.score() }.ingredients.also(::println)
 
+//    buildPermutations(
+//        emptyList(),
+//        ingredientsLookup
+//    )
+//        .also{ println("size before filter: ${it.size}") }
+//        .filter { cookie -> cookie.ingredients() == 100 }
+//        .also{ println("size after filter: ${it.size}") }
+////        .forEach { it.ingredients.also(::println) }
+//    .maxBy { it.score(ingredientsLookup) }.ingredients.also(::println)
 
-    // 1st 100
-    // 1st 99, 2nd 1
 
 //    Cookie(mapOf(ingredients[0] to 44, ingredients[1] to 56)).score().also(::println)
 //    Cookie(mapOf(ingredients[0] to 44, ingredients[1] to 56)).ingredients.values.joinToString { "," }.also(::println)
 
-    return "result"
+}
+
+private fun buildPermutations(cookies: List<Cookie>, ingredients: List<Ingredient>): List<Cookie> {
+    if (ingredients.isEmpty()) {
+        return cookies
+    }
+    val ingredient = ingredients.first()
+//        println("Ingredient: ${ingredient.name} Cookies: ${cookies.size} ingredients: ${ingredients.size}")
+    val newIngredientList = ingredients.minus(ingredient)
+
+    return if (cookies.isEmpty()) {
+        (0..100).flatMap { secondIterator ->
+            buildPermutations(cookies.plus(Cookie(listOf(secondIterator))), newIngredientList)
+        }
+    } else {
+        cookies.flatMap { cookie ->
+            (0..100).flatMap { secondIterator ->
+                if (cookie.ingredients() + secondIterator <= 100) {
+                    val newCookie = Cookie(cookie.ingredients.plus(secondIterator))
+                    //Cookie(cookie.ingredients.plus(ingredient to secondIterator))
+                    println("newCookie: ${newCookie.ingredients.joinToString(",")}")
+                    buildPermutations(cookies.plus(newCookie), newIngredientList)
+                } else {
+                    emptyList()
+                }
+            }.filter { cookie ->
+                cookie.ingredients() <= 100
+            }
+        }
+    }
+
 }
 
 private fun part2(input: String): String {
