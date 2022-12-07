@@ -1,27 +1,40 @@
+
 fun main(args: Array<String>) {
+    val testInput = Template(testInput)
+    println("Part1 test ${testInput.part1().also { check(it == "result") }}")
+    println("Part2 test ${testInput.part2().also { check(it == "result") }}")
 
-    println("Part1 test ${part1(testInput)}")
-    println("Part1 real ${part1(input)}")
-    println("Part2 test ${part2(testInput)}")
-    println("Part2 real ${part2(input)}")
+    val realInput = Template(input)
+    println("Part1 real ${realInput.part1().also { check(it == "result") }}")
+    println("Part2 real ${realInput.part2().also { check(it == "result") }}")
+
 }
 
-private fun part1(input: String): String {
+class Template(val input: String) {
 
-    return "result"
+    fun part1(): String {
+
+        return "result"
+    }
+
+    fun part2(): String {
+
+        return "result"
+    }
 }
 
-private fun part2(input: String): String {
-
-    return "result"
-}
 
 
 private val testInput =
-    """
-
+"""
+    
 """.trimIndent()
 private val input =
-    """
-
+"""
+    
 """.trimIndent()
+
+
+/**
+
+ */
