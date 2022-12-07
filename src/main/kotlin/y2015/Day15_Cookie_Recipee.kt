@@ -2,10 +2,27 @@ package y2015
 
 fun main(args: Array<String>) {
 
+
+
     println("Part1 test ${part1(testInput)}")
     println("Part1 real ${part1(input)}")
-    println("Part2 test ${part2(testInput)}")
-    println("Part2 real ${part2(input)}")
+    println("Part2 test ${part2test(testInput)}")
+    println("Part2 real ${part2real(input).also { check(it.split(" ").last().toInt() == 15862900) }}")
+}
+
+private fun ingredientsLookupBuilder(input: String): List<Ingredient> {
+    var nameIndex = 0
+    val ingredientsLookup = input.lines().map { it.split(" ") }.map { line ->
+        Ingredient(
+            name = nameIndex++,//line.first().dropLast(1),
+            capacity = line[2].dropLast(1).toInt(),
+            durability = line[4].dropLast(1).toInt(),
+            flavor = line[6].dropLast(1).toInt(),
+            texture = line[8].dropLast(1).toInt(),
+            calories = line.last().toInt(),
+        )
+    }
+    return ingredientsLookup
 }
 
 private data class Ingredient(
@@ -21,103 +38,103 @@ private data class Cookie(
     val ingredients: List<Int> // indexed by ingredient ie Butterscotch is 0, Cinnamon is 1
 ) {
     fun score(ingredientsLookup: List<Ingredient>): Int {
-        return maxOf(0, ingredients.mapIndexed {index, quantity ->
+        return maxOf(0, ingredients.mapIndexed { index, quantity ->
             quantity * ingredientsLookup[index].capacity
-        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+        }.sum()) * maxOf(0, ingredients.mapIndexed { index, quantity ->
             quantity * ingredientsLookup[index].durability
-        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+        }.sum()) * maxOf(0, ingredients.mapIndexed { index, quantity ->
             quantity * ingredientsLookup[index].flavor
-        }.sum()) * maxOf(0, ingredients.mapIndexed {index, quantity ->
+        }.sum()) * maxOf(0, ingredients.mapIndexed { index, quantity ->
             quantity * ingredientsLookup[index].texture
         }.sum())
     }
+
     fun ingredients(): Int = ingredients.sum()
+    fun calories(ingredientsLookup: List<Ingredient>): Int =
+        ingredients.mapIndexed { index, quantity ->
+            quantity * ingredientsLookup[index].calories
+        }.sum()
 
 }
 
 private fun part1(input: String): String {
-
-    var nameIndex = 0
-    val ingredientsLookup = input.lines().map { it.split(" ") }.map { line ->
-        Ingredient(
-            name = nameIndex++,//line.first().dropLast(1),
-            capacity = line[2].dropLast(1).toInt(),
-            durability = line[4].dropLast(1).toInt(),
-            flavor = line[6].dropLast(1).toInt(),
-            texture = line[8].dropLast(1).toInt(),
-            calories = line.last().toInt(),
-        )
-    }
-
-//    Cookie(listOf(44,56)).ingredients.joinToString(",").also(::println)
-
-    var mockup = List<Int>(ingredientsLookup.size) {1}
-
-    (1..100-ingredientsLookup.size).fold(mockup) { acc, indx ->
+    val ingredientsLookup = ingredientsLookupBuilder(input)
+    val firstTrial = List(ingredientsLookup.size) { 1 }
+    (1..100 - ingredientsLookup.size).fold(firstTrial) { acc, indx ->
         List(ingredientsLookup.size) { index ->
             val newList = acc.toMutableList()
             newList[index]++
             val cookie = Cookie(newList)
+//            println(
+//                "${cookie.ingredients.joinToString(",")} ${cookie.score(ingredientsLookup)} ${
+//                    cookie.calories(
+//                        ingredientsLookup
+//                    )
+//                }"
+//            )
             cookie
-        }.maxBy { it.score(ingredientsLookup) }.let {
-            it.ingredients
-        }
-
-    }.also {
+        }.maxBy { it.score(ingredientsLookup) }.ingredients
+    }.let {
         return "${it.joinToString(",")} ${Cookie(it).score(ingredientsLookup)}"
     }
-
-
-//    buildPermutations(
-//        emptyList(),
-//        ingredientsLookup
-//    )
-//        .also{ println("size before filter: ${it.size}") }
-//        .filter { cookie -> cookie.ingredients() == 100 }
-//        .also{ println("size after filter: ${it.size}") }
-////        .forEach { it.ingredients.also(::println) }
-//    .maxBy { it.score(ingredientsLookup) }.ingredients.also(::println)
-
-
-//    Cookie(mapOf(ingredients[0] to 44, ingredients[1] to 56)).score().also(::println)
-//    Cookie(mapOf(ingredients[0] to 44, ingredients[1] to 56)).ingredients.values.joinToString { "," }.also(::println)
-
 }
 
-private fun buildPermutations(cookies: List<Cookie>, ingredients: List<Ingredient>): List<Cookie> {
-    if (ingredients.isEmpty()) {
-        return cookies
-    }
-    val ingredient = ingredients.first()
-//        println("Ingredient: ${ingredient.name} Cookies: ${cookies.size} ingredients: ${ingredients.size}")
-    val newIngredientList = ingredients.minus(ingredient)
-
-    return if (cookies.isEmpty()) {
-        (0..100).flatMap { secondIterator ->
-            buildPermutations(cookies.plus(Cookie(listOf(secondIterator))), newIngredientList)
-        }
-    } else {
-        cookies.flatMap { cookie ->
-            (0..100).flatMap { secondIterator ->
-                if (cookie.ingredients() + secondIterator <= 100) {
-                    val newCookie = Cookie(cookie.ingredients.plus(secondIterator))
-                    //Cookie(cookie.ingredients.plus(ingredient to secondIterator))
-                    println("newCookie: ${newCookie.ingredients.joinToString(",")}")
-                    buildPermutations(cookies.plus(newCookie), newIngredientList)
-                } else {
-                    emptyList()
+private fun part2test(input: String): String {
+    val ingredientsLookup = ingredientsLookupBuilder(input)
+    var workingCookie = Cookie(listOf(1, 1))
+    (0..100).forEach { a ->
+        (0..100).forEach { b ->
+            if (a + b == 100) {
+                val cookie = Cookie(listOf(a, b))
+//                println("${cookie.ingredients.joinToString(",")} ${cookie.score(ingredientsLookup)}")
+                if (cookie.calories(ingredientsLookup) <= 500) {
+                    workingCookie = listOf(cookie, workingCookie).maxBy { it.score(ingredientsLookup) }
+//                    println("${workingCookie.ingredients.joinToString(",")} ${workingCookie.score(ingredientsLookup)}")
                 }
-            }.filter { cookie ->
-                cookie.ingredients() <= 100
+            }
+        }
+    }
+    return "${workingCookie.ingredients.joinToString(",")} ${workingCookie.score(ingredientsLookup)}"
+}
+
+private fun part2real(input: String): String {
+    val ingredientsLookup = ingredientsLookupBuilder(input)
+    var workingCookie = Cookie(ingredientsLookup.map { 1 })
+    permutations(4,1..100) { permutation ->
+        if (permutation.sum() == 100) {
+            val cookie = Cookie(permutation.reversed())
+            if (cookie.calories(ingredientsLookup) <= 500) {
+                workingCookie = listOf(cookie, workingCookie).maxBy { it.score(ingredientsLookup) }
             }
         }
     }
 
+    return "${workingCookie.ingredients.joinToString(",")} ${workingCookie.score(ingredientsLookup)}".also(::println)
 }
 
-private fun part2(input: String): String {
+// This permutation table only calls operation() 4^4=256 times.
+private fun permutations(itemSpaces: Int, itemRange: IntRange, preventDupes: Boolean = false, operation: (List<Int>) -> Unit) {
+    val mutableList = MutableList(itemSpaces) {itemRange.first}
+    fun increment(workingIndex: Int): Boolean {
+        if (workingIndex == itemSpaces) {
+            return true
+        }
+        mutableList[workingIndex]++
+        if (mutableList[workingIndex] > itemRange.last) {
+            mutableList[workingIndex] = 0
+            return increment(workingIndex+1)
+        }
+        return false
+    }
+    while (true) {
+        if (!preventDupes || (mutableList.toSet().size == mutableList.size))
+        operation(mutableList)
+        val isDone = increment(0)
+        if (isDone) {
+            break
+        }
+    }
 
-    return "result"
 }
 
 

@@ -23,7 +23,6 @@ fun main(args: Array<String>) {
 
 
 private fun String.startOfMarker(): Int {
-
     var answer = -1
     windowedIndexed<Boolean>(4, 1) {index, trial ->
         trial.none {cTrial ->
@@ -32,7 +31,6 @@ private fun String.startOfMarker(): Int {
             if (it) {
                 if (answer == -1) {
                     answer = index + trial.length
-                    println("$trial $index $answer")
                 }
             }
         }
@@ -50,7 +48,6 @@ private fun String.startOfMessageMarker(): Int {
             if (it) {
                 if (answer == -1) {
                     answer = index + trial.length
-                    println("$trial $index $answer")
                 }
             }
         }
