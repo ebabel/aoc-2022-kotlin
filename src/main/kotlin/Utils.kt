@@ -73,3 +73,10 @@ fun permutations(itemSpaces: Int, itemRange: IntRange, preventDupes: Boolean = f
     }
 
 }
+
+fun List<Any>.alsoPrintOnLines() {
+    printOnLn(this)
+}
+fun printOnLn(list: List<Any>) {
+    list.forEach { println(it) }
+}

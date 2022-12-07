@@ -1,110 +1,113 @@
 package y2022
 
-private val totalFileSystemSize = 70000000
-private val neededForUpdate = 30000000
+
+private const val totalFileSystemSize = 70000000L
+private const val neededForUpdate = 30000000L
 
 fun main(args: Array<String>) {
+    val testInput = Day7_File_management(testInput)
+    println("Part1 test ${testInput.part1().also { check(it == "95437") }}")
+    println("Part2 test ${testInput.part2().also { check(it == "24933642") }}")
 
-    println("Part1 test ${part1(testInput)}")
-    println("Part1 real ${part1(input)}")
-//    println("Part2 test ${part2(testInput)}")
-//    println("Part2 real ${part2(input)}")
+    val realInput = Day7_File_management(input)
+    println("Part1 real ${realInput.part1().also { check(it == "1583951") }}")
+    println("Part2 real ${realInput.part2().also { check(it == "214171") }}")
+
 }
 
-private data class File(val name: String, var size: Int?, val isDir: Boolean, val files: MutableSet<File>?, var parent: File?) {
+class Day7_File_management(val input: String) {
+    private data class File(
+        val name: String,
+        var size: Long = 0,
+        val isDir: Boolean,
+        val files: MutableSet<File>?,
+        var parent: File?
+    ) {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
 
-        other as File
+            other as File
 
-        if (name != other.name) return false
-        if (parent != other.parent) return false
+            if (name != other.name) return false
+            if (parent != other.parent) return false
 
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + (parent?.hashCode() ?: 0)
-        return result
-    }
-
-    override fun toString(): String {
-        return "File(name='$name', size=$size, isDir=$isDir parent=${parent?.name})"
-    }
-}
-
-
-private fun part1(input: String): String {
-
-    val root = File("/", null, true, mutableSetOf(), null)
-    var workingFile = root
-
-    input.lines().forEach {line ->
-        val words = line.split(" ")
-        if (words[0] =="dir") { // dir
-            workingFile.files!!.add(File(words.last(), null,  true, mutableSetOf(), workingFile))
-        } else if (words[0].toIntOrNull() != null) { // file
-            workingFile.files!!.add(File(words.last(), words.first().toInt(), false, null, workingFile).also { println(it) })
-        } else if (line == "$ cd /") { // back to root
-            workingFile = root
-        } else if (line.startsWith("$ cd ..")) { // into a dir
-            workingFile = workingFile.parent!!
-        } else if (line.startsWith("$ cd")) { // into a dir
-            workingFile = workingFile.files!!.first { it.name == words.last() }
-        } else {
-            // ls
+            return true
         }
 
+        override fun hashCode(): Int {
+            var result = name.hashCode()
+            result = 31 * result + (parent?.hashCode() ?: 0)
+            return result
+        }
+
+        fun getDirSize(): Long = files?.sumOf { it.getDirSize() } ?: size
+
+        override fun toString(): String {
+            return "${appendParentName(name)}', size=$size, isDir=$isDir parent=${parent?.name})"
+        }
+
+        fun appendParentName(toAppend: String): String =
+            parent?.let { parent!!.appendParentName("$name/$toAppend") } ?: "$name/$toAppend"
     }
 
-    val smallFiles = mutableListOf<File>()
-    val dirSizeMap = mutableMapOf<File, Int>()
-    fun populateDirSize(file: File) {
-        println("populating $file ")
-        file.files?.forEach {
-            if (it.isDir) {
-                populateDirSize(it)
+
+    private val root = File("/", 0, true, mutableSetOf(), null)
+    private val allFiles = mutableListOf<File>(root)
+    fun part1(): String {
+        allFiles.clear()
+        var workingFile = root
+        input.lines().forEach { line ->
+            val words = line.split(" ")
+            if (words[0] == "dir") { // dir
+                val file = File(words.last(), 0, true, mutableSetOf(), workingFile)
+                if (!workingFile.files!!.contains(file)) {
+                    workingFile.files!!.add(file)
+                    allFiles.add(file)
+                }
+            } else if (words[0].toIntOrNull() != null) { // file
+                val file = File(words.last(), words.first().toLong(), false, null, workingFile)//.also { println(it) }
+                if (!workingFile.files!!.contains(file)) {
+                    allFiles.add(file)
+                    workingFile.files!!.add(file)
+                }
+
+            } else if (line == "$ cd /") { // back to root
+                workingFile = root
+            } else if (line.startsWith("$ cd ..")) { // into a dir
+                workingFile = workingFile.parent!!
+            } else if (line.startsWith("$ cd")) { // into a dir
+                workingFile = workingFile.files!!.first { it.name == words.last() }
+            } else {
+                // ls
             }
-        }
-        file.files?.map {
-            it.size!!//.also { println("filesize ${file.name} ${file.size}") }
-        }?.also {subFile ->
-           file.size = subFile.sum().also {
-               if (it < 100000) {
-//                   println("${file.name} is only $it")
-                   smallFiles.add(file)
-               }
-           }
-            dirSizeMap[file] = file.size!!
-//           println("${file.name} populated to ${file.size}}")
 
         }
+
+        return allFiles
+            .filter { it.isDir }
+            .filter { it.isDir && it.getDirSize() < 100000 }
+            .map { it.name to it.getDirSize() }
+            .sumOf { it.second }
+            .also { (println("Part 1: $it")) }.toString()
     }
 
-    populateDirSize(root)
+    fun part2(): String {
 
-    dirSizeMap.toList().sortedBy {
-        it.second
-    }.forEach { println(it) }
+        val spaceUsed = totalFileSystemSize - root.getDirSize()
+        val neededToDelete = neededForUpdate - spaceUsed
 
-    val spaceUsed = 40208860
-    // 70000000 -
-    // 40208860 = 29,791,140
-    // 30000000 - 29,791,140 -> 208,860
-
-    smallFiles.sumOf { it.size!! }.also(::println)
-
-
-    return "result"
+        return allFiles
+            .filter { it.isDir && neededToDelete <= it.getDirSize() }
+            .map { it.name to it.getDirSize() }
+            .sortedBy { it.second }
+            .minBy { it.second }
+            .also { println("Part 2: ${it.second}") }
+            .second.toString()
+    }
 }
 
-private fun part2(input: String): String {
-
-    return "result"
-}
 
 
 private val testInput =
