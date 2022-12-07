@@ -42,7 +42,7 @@ class Day7_File_management(val input: String) {
             return result
         }
 
-        fun getDirSize(): Long = files?.sumOf { it.getDirSize() } ?: size
+        val getDirSize: Long = files?.sumOf { it.getDirSize } ?: size
 
         override fun toString(): String {
             return "${appendParentName(name)}', size=$size, isDir=$isDir parent=${parent?.name})"
@@ -52,9 +52,8 @@ class Day7_File_management(val input: String) {
             parent?.let { parent!!.appendParentName("$name/$toAppend") } ?: "$name/$toAppend"
     }
 
-
     private val root = File("/", 0, true, mutableSetOf(), null)
-    private val allFiles = mutableListOf<File>(root)
+    private val allFiles = mutableListOf(root)
     fun part1(): String {
         allFiles.clear()
         var workingFile = root
@@ -80,27 +79,27 @@ class Day7_File_management(val input: String) {
             } else if (line.startsWith("$ cd")) { // into a dir
                 workingFile = workingFile.files!!.first { it.name == words.last() }
             } else {
-                // ls
+                // ignore 'ls'
             }
 
         }
 
         return allFiles
             .filter { it.isDir }
-            .filter { it.isDir && it.getDirSize() < 100000 }
-            .map { it.name to it.getDirSize() }
+            .filter { it.isDir && it.getDirSize < 100000 }
+            .map { it.name to it.getDirSize }
             .sumOf { it.second }
             .also { (println("Part 1: $it")) }.toString()
     }
 
     fun part2(): String {
 
-        val spaceUsed = totalFileSystemSize - root.getDirSize()
+        val spaceUsed = totalFileSystemSize - root.getDirSize
         val neededToDelete = neededForUpdate - spaceUsed
 
         return allFiles
-            .filter { it.isDir && neededToDelete <= it.getDirSize() }
-            .map { it.name to it.getDirSize() }
+            .filter { it.isDir && neededToDelete <= it.getDirSize }
+            .map { it.name to it.getDirSize }
             .sortedBy { it.second }
             .minBy { it.second }
             .also { println("Part 2: ${it.second}") }
