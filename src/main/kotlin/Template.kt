@@ -1,4 +1,3 @@
-import y2015.Day17
 
 fun main(args: Array<String>) {
 
