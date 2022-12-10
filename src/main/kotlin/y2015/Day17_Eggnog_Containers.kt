@@ -1,6 +1,5 @@
 package y2015
 
-import alsoPrintOnLines
 import permutationSet
 
 fun main(args: Array<String>) {
