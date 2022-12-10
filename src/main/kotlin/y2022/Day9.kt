@@ -1,14 +1,13 @@
 package y2022
 
-import alsoPrintOnLines
 import kotlin.math.abs
 
 fun main(args: Array<String>) {
 
     val testInput = Day9(testInput)
-//    testInput.part1()
-//        .also { println("Part1 test $it") }
-//        .also { check(it == "13") }
+    testInput.part1()
+        .also { println("Part1 test $it") }
+        .also { check(it == "13") }
 
     val testInput2 = Day9(testInput2)
     testInput2.part2()
@@ -16,12 +15,12 @@ fun main(args: Array<String>) {
         .also { check(it == "36") }
 
     val realInput = Day9(input)
-//    realInput.part1()
-//        .also { println("Part1 real $it") }
-//        .also { check(it == "6367") }
-//    realInput.part2()
-//        .also { println("Part2 real $it") }
-//        .also { check(it == "result") }
+    realInput.part1()
+        .also { println("Part1 real $it") }
+        .also { check(it == "6367") }
+    realInput.part2()
+        .also { println("Part2 real $it") }
+        .also { check(it == "2536") }
 }
 
 class Day9(private val input: String) {
@@ -30,7 +29,7 @@ class Day9(private val input: String) {
         val isHorizontal = y == 0
     }
 
-    data class Knot(var x: Int, var y: Int) {
+    data class Knot(val name: String, var x: Int, var y: Int) {
         fun applyVector(vector: Vector) {
             this.x += vector.x
             this.y += vector.y
@@ -40,20 +39,22 @@ class Day9(private val input: String) {
             val distanceX = abs(x - head.x)
             val distanceY = abs(y - head.y)
             val distance = distanceX + distanceY
-            println("distance $distanceX $distanceY $distance")
-            if (distance > 2) {
-                applyVector(direction)
-                println("diagonal needed")
-
-                if (direction.isHorizontal) {
-                    y = head.y
+            if (distanceX >= 3) {
+                error("what happened here?!")
+            }
+            if (distanceX > 1 || distance > 2) {
+                if (head.x > x) {
+                    x += 1
                 } else {
-                    x = head.x
+                    x -= 1
                 }
-            } else if (distanceX > 1 || distanceY > 1) {
-                applyVector(direction)
-            } else {
-                println("no need to move")
+            }
+            if (distanceY > 1 || distance > 2) {
+                if (head.y > y) {
+                    y += 1
+                } else {
+                    y -= 1
+                }
             }
         }
     }
@@ -61,8 +62,8 @@ class Day9(private val input: String) {
 
     fun part1(): String {
 
-        val head = Knot(0, 0)
-        val tail = Knot(0, 0)
+        val head = Knot("head", 0, 0)
+        val tail = Knot("tail", 0, 0)
         val tailPositions = mutableSetOf<Pair<Int, Int>>()
 
         input.lines().map { it.split(" ") }.map {
@@ -75,23 +76,19 @@ class Day9(private val input: String) {
             } to it.last().toInt()
         }.forEach { (direction, quantity) ->
             (1..quantity).forEach {
-                println("----")
-                println("Moving $direction")
                 head.applyVector(direction)
-                println("head moved to $head")
                 tail.catchUp(head, direction)
                 tailPositions.add(tail.x to tail.y)
-                println("tail moved to $tail")
-
             }
         }
-        tailPositions.toList().alsoPrintOnLines()
+//        tailPositions.toList().alsoPrintOnLines()
         return tailPositions.size.toString()
     }
 
     fun part2(): String {
 
-        val knots = List(9) { Knot(10, 10) }
+        var name = 0
+        val knots = List(10) { Knot((name++).toString(), 10, 10) }
         val tailPositions = mutableSetOf<Pair<Int, Int>>()
 
         input.lines().map { it.split(" ") }.map {
@@ -103,36 +100,56 @@ class Day9(private val input: String) {
                 else -> error("Invalid direction")
             } to it.last().toInt()
         }.forEach { (direction, quantity) ->
+
             (1..quantity).forEach {
-                println("----")
-                println("Moving $direction")
 
                 knots.forEachIndexed { index, knot ->
                     if (index == 0) {
                         knot.applyVector(direction)
-                        println("head moved to $knot")
                     } else {
                         knot.catchUp(knots[index - 1], direction)
-                        println("knot $index moved to $knot")
                     }
                 }
                 tailPositions.add(knots.last().x to knots.last().y)
-            }
 
-            (0..20).forEach { y ->
-                (0..20).forEach { x ->
-                    var letter = "."
-                    knots.reversed().forEachIndexed {index, knot ->
-                        if (knot.x == x && knot.y == y) {
-                            letter = (knots.size-index).toString()
-                        }
-                    }
-                    print(letter)
-                }
-                println()
+
+
             }
+//            (-5..23).forEach { y ->
+//                (-5..23).forEach { x ->
+//                    var letter = "."
+//
+//                    knots.reversed().forEachIndexed { index, knot ->
+//                        if (knot.x == x && knot.y == y) {
+//                            val letterToPrint = knots.size - index
+//                            letter = if (letterToPrint == 1) {
+//                                "H"
+//                            } else {
+//                                (letterToPrint - 1).toString()
+//                            }
+//
+//                        }
+//                    }
+//                    print(letter)
+//                }
+//                println()
+//            }
+
         }
-        tailPositions.toList().alsoPrintOnLines()
+//        (-5..23).forEach { y ->
+//            (-5..23).forEach { x ->
+//                var letter = "."
+//                print(
+//                    if (tailPositions.filter { it.first == x && it.second == y }.any()) {
+//                        "#"
+//                    } else { "."
+//                    }
+//                )
+//                print(letter)
+//            }
+//            println()
+//        }
+//        tailPositions.toList().alsoPrintOnLines()
         return tailPositions.size.toString()
     }
 }
@@ -159,6 +176,17 @@ R 17
 D 10
 L 25
 U 20
+""".trimIndent()
+private val testInput3 =
+    """
+R 4
+U 4
+L 3
+D 1
+R 4
+D 1
+L 5
+R 2
 """.trimIndent()
 private val input =
     """
