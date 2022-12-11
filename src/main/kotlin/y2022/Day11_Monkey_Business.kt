@@ -39,7 +39,7 @@ class Day11(private val input: String) {
         val monkeys = parseMonkeys()
 
         repeat(20) {
-            roundOMonkeys(monkeys, false)
+            roundOMonkeys(monkeys, isPart2 = false)
         }
 
         return monkeys.map { it.name to it.inspectedCount }
