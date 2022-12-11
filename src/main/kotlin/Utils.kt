@@ -172,3 +172,10 @@ fun <R> List<R>.alsoPrintOnLines(): List<R> {
 fun <R> printOnLn(list: List<R>) {
     list.forEach { println(it) }
 }
+
+fun List<Long>.productOf() = reduce { acc, i ->
+    acc * i
+}
+fun List<Int>.productOf() = reduce { acc, i ->
+    acc * i
+}
