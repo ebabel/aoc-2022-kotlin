@@ -1,6 +1,7 @@
 package y2022
 
 import alsoPrintOnLines
+import productOf
 
 fun main(args: Array<String>) {
 
@@ -36,13 +37,12 @@ class Day11(private val input: String) {
 
     fun part1(): String {
         val monkeys = parseMonkeys()
-        val commonDenominator = monkeys.map { it.test!! }.reduce { acc, i -> acc * i }
 
         repeat(20) {
-            roundOMonkeys(monkeys, commonDenominator, false)
+            roundOMonkeys(monkeys, false)
         }
 
-        return monkeys.map { it.name to it.inspectedCount}
+        return monkeys.map { it.name to it.inspectedCount }
             .alsoPrintOnLines()
             .sortedBy { it.second }
             .takeLast(2)
@@ -99,18 +99,12 @@ class Day11(private val input: String) {
     fun part2(): String {
 
         val monkeys = parseMonkeys()
-
-        val commonDenominator = monkeys.map { it.test!! }.reduce { acc, i ->
-            acc * i
-        }
-
-        monkeys.alsoPrintOnLines()
+        val commonDenominator = monkeys.map { it.test!! }.productOf()
 
         repeat(10000) {
             roundOMonkeys(monkeys, commonDenominator, true)
         }
-
-        return monkeys.map { it.name to it.inspectedCount}
+        return monkeys.map { it.name to it.inspectedCount }
             .sortedBy { it.second }
             .takeLast(2)
             .alsoPrintOnLines()
@@ -120,7 +114,10 @@ class Day11(private val input: String) {
     }
 }
 
-fun roundOMonkeys(monkeys: MutableList<Day11.Monkey>, commonDenominator: Int, isPart2: Boolean) {
+fun roundOMonkeys(
+    monkeys: MutableList<Day11.Monkey>,
+    commonDenominator: Int = 0, isPart2: Boolean
+) {
     val divider = if (isPart2) {
         1L
     } else {
