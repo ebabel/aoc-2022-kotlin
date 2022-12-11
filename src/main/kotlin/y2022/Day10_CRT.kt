@@ -8,14 +8,14 @@ fun main(args: Array<String>) {
         .also { check(it == "13140") }
     testInput.part2()
         .also { println("Part2 test $it") }
-//        .also { check(it == """
-//            ##..##..##..##..##..##..##..##..##..##..
-//            ###...###...###...###...###...###...###
-//            .####....####....####....####....####....
-//            #####.....#####.....#####.....#####....
-//            .######......######......######......###
-//            ########.......#######.......#######.....
-//        """.trimIndent()) }
+        .also { check(it.trim() == """
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+###   ###   ###   ###   ###   ###   ###
+ ####    ####    ####    ####    ####    
+#####     #####     #####     #####    
+ ######      ######      ######      ###
+########       #######       #######     
+""".trim()) }
 
     val realInput = Template(input)
     realInput.part1()
@@ -87,46 +87,65 @@ class Template(private val input: String) {
 
     fun part2(): String {
         var cycle = 1
-        var spritePosition = 1
-        var prevSpritePosition = spritePosition
-        val output = StringBuilder()
-        output.appendLine()
-        input.lines().map { it.split(" ") }.forEach { line ->
 
-            val cycleMod = cycle % 40
-            if ( cycleMod in (spritePosition..(spritePosition+2))) {
-                output.append("#")
+        var spritePosition = 1
+        val output = StringBuilder()
+        fun appendOutput(index: Int) {
+            if (index in (spritePosition..(spritePosition + 3))) {
+                "[]"
             } else {
-                output.append(" ")
-            }
-            if (cycleMod == 0) {
+                "  "
+            }.also { output.append(it) }
+            if (output.length % 40 == 0) {
                 output.appendLine()
             }
-            if (line.first() == "addx") {
-                if ((cycle+1) % 40  == 0) {
-                    output.appendLine()
-                }
-                if ( (cycleMod+1) in (spritePosition..(spritePosition+2))) {
-                    output.append("#")
-                } else {
-                    output.append(" ")
-                }
-            }
-
-
-            prevSpritePosition = spritePosition
-
-            if (line.first() == "addx") {
-                cycle += 2
-                val toInt = line.last().toInt()
-
-//                println("adding $toInt")
-                spritePosition += toInt
-            } else {
-                cycle++
-            }
-
         }
+
+        sequence {
+            input.lines().map { it.split(" ") }.forEachIndexed { index, line ->
+                appendOutput(index)
+                if (line.first().startsWith("addx")) {
+                    appendOutput(index)
+                    yield(spritePosition)
+                    spritePosition += line.last().toInt()
+                }
+            }
+        }
+//
+//            val cycleMod = cycle % 40
+//            if ( cycleMod in (spritePosition..(spritePosition+2))) {
+//                output.append("#")
+//            } else {
+//                output.append(" ")
+//            }
+//            if (cycleMod == 0) {
+//                output.appendLine()
+//            }
+//            if (line.first() == "addx") {
+//                if ((cycle+1) % 40  == 0) {
+//                    output.appendLine()
+//                }
+//                if ( (cycleMod+1) in (spritePosition..(spritePosition+2))) {
+//                    output.append("#")
+//                } else {
+//                    output.append(" ")
+//                }
+//            }
+//
+//
+//            prevSpritePosition = spritePosition
+//
+//            if (line.first() == "addx") {
+//                cycle += 2
+//                val toInt = line.last().toInt()
+//
+////                println("adding $toInt")
+//                spritePosition += toInt
+//            } else {
+//                cycle++
+//            }
+//acc
+//        }
         return output.toString()
     }
 }
