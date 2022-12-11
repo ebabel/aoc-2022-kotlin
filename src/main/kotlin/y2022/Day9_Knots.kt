@@ -25,9 +25,7 @@ fun main(args: Array<String>) {
 
 class Day9(private val input: String) {
 
-    data class Vector(val x: Int, val y: Int) {
-        val isHorizontal = y == 0
-    }
+    data class Vector(val x: Int, val y: Int)
 
     data class Knot(val name: String, var x: Int, var y: Int) {
         fun applyVector(vector: Vector) {
@@ -81,7 +79,6 @@ class Day9(private val input: String) {
                 tailPositions.add(tail.x to tail.y)
             }
         }
-//        tailPositions.toList().alsoPrintOnLines()
         return tailPositions.size.toString()
     }
 
