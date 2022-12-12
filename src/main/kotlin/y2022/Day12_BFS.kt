@@ -1,6 +1,7 @@
 package y2022
 
 import Point
+import java.util.LinkedList
 
 fun main(args: Array<String>) {
 
@@ -41,8 +42,8 @@ class Day12(private val input: String) {
 
 //        debugPath(foundPath)
         return bfs(
-            start = map.flatten().first { it.elevation == -1 },
-            end = map.flatten().first { it.elevation == 26 },
+            start = -1,
+            end = 26,
             map = map,
             validity = {neighbor, current -> neighbor.elevation <= current.elevation + 1}
         ).size.toString()
@@ -53,8 +54,8 @@ class Day12(private val input: String) {
 
 //        debugPath(foundPath)
         return bfs(
-            start = map.flatten().first { it.elevation == 26 },
-            end = map.flatten().first { it.elevation == -1 },
+            start = 26,
+            end = 0,
             map = map,
             validity = {neighbor, current -> current.elevation <= neighbor.elevation + 1}
         ).also { debugPath(it) }.size.toString()
@@ -72,9 +73,10 @@ class Day12(private val input: String) {
     }
 }
 
-fun bfs(start: Node, end: Node, map: List<List<Node>>, validity:(Node, Node) -> Boolean): List<Node> {
-    val nodeQueue = ArrayDeque<NodePathMap>()
-    nodeQueue.add(NodePathMap(start, emptyList()))
+fun bfs(start: Int, end: Int, map: List<List<Node>>, validity:(Node, Node) -> Boolean): List<Node> {
+    val nodeQueue = LinkedList<NodePathMap>()
+    val startNode = map.flatten().first { it.elevation == start }
+    nodeQueue.add(NodePathMap(startNode, emptyList()))
     val visited = mutableListOf<Node>()
 
     while (nodeQueue.isNotEmpty()) {
@@ -83,7 +85,7 @@ fun bfs(start: Node, end: Node, map: List<List<Node>>, validity:(Node, Node) -> 
             .filter { it !in visited }
             .filter { validity(it, current.node) }
             .forEach { node ->
-                if (node == end) {
+                if (node.elevation == end) {
                     return current.path.plus(node)
                 }
                 nodeQueue.add(NodePathMap(node, current.path.plus(node)))
@@ -97,13 +99,19 @@ private fun debugPath(path: List<Node>) {
     buildString {
         (0..(path.maxOf { it.location.y })).forEach { y ->
             (0..(path.maxOf { it.location.x })).forEach { x ->
-                val index = path.indexOfFirst { it.location.x == x && it.location.y == y }
+                val index = path.indexOfFirst { node -> node.location.x == x && node.location.y == y }
+                val node = path.firstOrNull() { node -> node.location.x == x && node.location.y == y }
                 append(
-                    if (index == -1) {
+                    if (node == null) {
                         " "
                     } else {
-                        "."
+                        (node.elevation+ 'a'.code).toChar()
                     }
+//                    if (index == -1) {
+//                        " "
+//                    } else {
+//                        "."
+//                    }
                 )
             }
             appendLine()
