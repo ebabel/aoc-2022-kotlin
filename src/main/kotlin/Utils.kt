@@ -179,3 +179,13 @@ fun List<Long>.productOf() = reduce { acc, i ->
 fun List<Int>.productOf() = reduce { acc, i ->
     acc * i
 }
+
+data class Point(val x: Int = 0, val y: Int = 0) {
+    override fun toString(): String = "[$x, $y]"
+}
+operator fun Point.minus(other: Point): Point = Point(x - other.x, y - other.y)
+fun Point.dist2(x: Int, y: Int): Int {
+    val dx = this.x - x
+    val dy = this.y - y
+    return dx * dx + dy * dy
+}

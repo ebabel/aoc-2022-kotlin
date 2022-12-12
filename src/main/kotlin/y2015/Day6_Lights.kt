@@ -1,7 +1,5 @@
 package y2015
 
-import java.util.Arrays
-
 fun main(args: Array<String>) {
 
     part1()
