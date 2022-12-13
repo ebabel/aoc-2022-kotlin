@@ -166,6 +166,7 @@ fun permutationSet2(items: Int): List<List<Int>> {
 
 fun <R> List<R>.alsoPrintOnLines(): List<R> {
     printOnLn(this)
+    println("size: $size")
     return this
 }
 

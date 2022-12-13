@@ -1,35 +1,87 @@
 package y2015
+
+import alsoPrintOnLines
+
 fun main(args: Array<String>) {
 
     val testInput = Day18(testInput)
-    testInput.part1()
+    testInput.part1(4)
         .also { println("Part1 test $it") }
-        .also { check(it == "result") }
-    testInput.part2()
-        .also { println("Part2 test $it") }
-        .also { check(it == "result") }
-
+        .also { check(it == "4") }
+//    testInput.part2()
+//        .also { println("Part2 test $it") }
+//        .also { check(it == "result") }
+//
     val realInput = Day18(input)
-    realInput.part1()
+    realInput.part1(100)
         .also { println("Part1 real $it") }
         .also { check(it == "result") }
-    realInput.part2()
-        .also { println("Part2 real $it") }
-        .also { check(it == "result") }
+//    realInput.part2()
+//        .also { println("Part2 real $it") }
+//        .also { check(it == "result") }
 }
 
 class Day18(private val input: String) {
 
-    fun part1(): String {
-        val map = Array(input.lines().first().length) { Array(input.lines().size) { false } }
+    fun part1(times: Int): String {
+        val lines: Array<Array<Boolean>> = input.lines().mapIndexed { indexY, line ->
+            line.mapIndexed { indexX, letter ->
+                letter == '#'
+            }.toTypedArray()
+        }.toTypedArray()
 
-        input.lines().forEachIndexed { indexY, line ->
-            line.forEachIndexed { indexX, letter ->
+        fun doFrame(lines: Array<Array<Boolean>>): Array<Array<Boolean>> {
+            val newLines = lines.mapIndexed { indexY, line ->
+                line.mapIndexed { indexX, letter ->
+//                    println("--- $indexX $indexY")
+                    val neighborsOn = listOf(
+                        indexX - 1 to indexY - 1,
+                        indexX to indexY - 1,
+                        indexX + 1 to indexY - 1,
+                        indexX + 1 to indexY,
+                        indexX + 1 to indexY + 1,
+                        indexX to indexY + 1,
+                        indexX - 1 to indexY + 1,
+                        indexX - 1 to indexY,
+                    ).filter {
+                        it.first in lines.indices && it.second in line.indices
+                    }//.alsoPrintOnLines()
+                        .filter {
+//                        println("${it.first} ${ it.second }? ${lines[it.second][it.first]}")
+                        lines[it.second][it.first]
+                    }.count()
+                    val isOn = lines[indexY][indexX]
+//                    println("$indexX $indexY $isOn $neighborsOn")
+                    (!isOn && neighborsOn == 3) ||
+                            (isOn && (neighborsOn == 3 || neighborsOn == 2))
+                }.toTypedArray()
+            }.toTypedArray()
+            return newLines
+        }
 
+        fun Array<Array<Boolean>>.debug() = this.also {
+            it.forEach {
+                it.map {
+                    if (it) "#" else "."
+                }.joinToString("").also { println(it) }
             }
         }
 
-        return "result"
+        var working = lines
+//        lines.debug()
+        println()
+        println()
+        repeat(times) {
+            working = doFrame(working)
+            working.debug()
+            println()
+            println()
+        }
+
+
+
+
+        return working.flatten().count { it }.toString()
     }
 
     fun part2(): String {
