@@ -34,26 +34,54 @@ class Day18(private val input: String) {
             val newLines = lines.mapIndexed { indexY, line ->
                 line.mapIndexed { indexX, letter ->
 //                    println("--- $indexX $indexY")
-                    val neighborsOn = listOf(
-                        indexX - 1 to indexY - 1,
-                        indexX to indexY - 1,
-                        indexX + 1 to indexY - 1,
-                        indexX + 1 to indexY,
-                        indexX + 1 to indexY + 1,
-                        indexX to indexY + 1,
-                        indexX - 1 to indexY + 1,
-                        indexX - 1 to indexY,
-                    ).filter {
-                        it.first in lines.indices && it.second in line.indices
-                    }//.alsoPrintOnLines()
-                        .filter {
+                    if (indexX to indexY in listOf(
+                        0 to 0,
+                        line.lastIndex to 0,
+                        line.lastIndex to lines.lastIndex,
+                        0 to lines.lastIndex
+                    )) {
+                        true
+                    } else {
+                        val neighborsOn = listOf(
+                            indexX - 1 to indexY - 1,
+                            indexX to indexY - 1,
+                            indexX + 1 to indexY - 1,
+                            indexX + 1 to indexY,
+                            indexX + 1 to indexY + 1,
+                            indexX to indexY + 1,
+                            indexX - 1 to indexY + 1,
+                            indexX - 1 to indexY,
+                        ).filter {
+                            it.first in lines.indices && it.second in line.indices
+                        }//.alsoPrintOnLines()
+                            .filter {
 //                        println("${it.first} ${ it.second }? ${lines[it.second][it.first]}")
-                        lines[it.second][it.first]
-                    }.count()
-                    val isOn = lines[indexY][indexX]
+                                lines[it.second][it.first]
+                            }.count()
+                        val isOn = lines[indexY][indexX]
 //                    println("$indexX $indexY $isOn $neighborsOn")
-                    (!isOn && neighborsOn == 3) ||
-                            (isOn && (neighborsOn == 3 || neighborsOn == 2))
+                        (!isOn && neighborsOn == 3) ||
+                                (isOn && (neighborsOn == 3 || neighborsOn == 2))
+                    }
+
+                }.toTypedArray()
+            }.toTypedArray()
+            return newLines
+        }
+        fun setCornersTrue(lines: Array<Array<Boolean>>): Array<Array<Boolean>> {
+            val newLines = lines.mapIndexed { indexY, line ->
+                line.mapIndexed { indexX, letter ->
+                    if (indexX to indexY in listOf(
+                        0 to 0,
+                        line.lastIndex to 0,
+                        line.lastIndex to lines.lastIndex,
+                        0 to lines.lastIndex
+                    )) {
+                        true
+                    } else {
+                        lines[indexY][indexX]
+                    }
+
                 }.toTypedArray()
             }.toTypedArray()
             return newLines
@@ -67,7 +95,7 @@ class Day18(private val input: String) {
             }
         }
 
-        var working = lines
+        var working = setCornersTrue(lines)
 //        lines.debug()
         println()
         println()
@@ -94,12 +122,12 @@ class Day18(private val input: String) {
 
 private val testInput =
 """
-.#.#.#
+##.#.#
 ...##.
 #....#
 ..#...
 #.#..#
-####..
+####.#
 """.trimIndent()
 private val input =
 """
