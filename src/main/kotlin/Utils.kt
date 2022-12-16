@@ -6,7 +6,7 @@ fun main() {
 //            println(it.joinToString(","))
 //        }
 
-    permutationSet(20).forEach {
+    permutationSet2(15).forEach {
         println(it)
     }
 }

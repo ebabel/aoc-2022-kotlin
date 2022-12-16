@@ -5,17 +5,17 @@ import alsoPrintOnLines
 fun main(args: Array<String>) {
 
     val testInput = Day16(testInput)
-//    testInput.part1()
-//        .also { println("Part1 test $it") }
-//        .also { check(it == "result") }
+    testInput.part1()
+        .also { println("Part1 test $it") }
+        .also { check(it == "result") }
 //    testInput.part2()
 //        .also { println("Part2 test $it") }
 //        .also { check(it == "result") }
 //
     val realInput = Day16(input)
-    realInput.part1()
-        .also { println("Part1 real $it") }
-        .also { check(it == "result") }
+//    realInput.part1()
+//        .also { println("Part1 real $it") }
+//        .also { check(it == "result") }
 //    realInput.part2()
 //        .also { println("Part2 real $it") }
 //        .also { check(it == "result") }
@@ -36,7 +36,7 @@ class Day16(private val input: String) {
             val name = it.substring(6,8)
             val flowRate = it.substringAfter("=").substringBefore(";").toInt()
             Valve(name, flowRate)
-        }.alsoPrintOnLines()
+        }//.alsoPrintOnLines()
         input.lines().forEach { line ->
             val substringAfter = if (line.contains("valves")) {
                 line.substringAfter("valves ")
@@ -55,89 +55,102 @@ class Day16(private val input: String) {
 
         var tries = 0L
         fun hurry(
-            valve: Valve,
-            path: List<Action>,
-            openValves: List<Valve> = emptyList(),
+            myValve: Valve,
+            helperValve: Valve,
+            myPath: List<Action>,
+            helperPath: List<Action>,
+            openValves: Set<Valve> = emptySet(),
             minutes: Int = 1,
-            pressureReleased: Int = 0
+            pressureReleased: Int = 0,
         ) {
             tries++
             val newPressure = openValves.sumOf { it.flowRate } + pressureReleased
 
-            if (minutes == 30) {
+            if (minutes == 26) {
                 if (newPressure > maxPressure) {
                     maxPressure = newPressure
                     println("Done: pressure: $newPressure $tries")
+                } else {
+                    if (tries % 1000000 == 0L) {
+                        println("tries $tries $pressureReleased")
+                    }
+//                    println("got zero? wtf ${openValves.toList().alsoPrintOnLines()}")
                 }
             } else if (openValves.size == valves.size) {
-                hurry(valve, path, openValves, minutes + 1, newPressure)
+                hurry(myValve, helperValve, myPath, helperPath, openValves, minutes + 1, newPressure)
             } else {
-                val last = path.last()
-                if (valve in openValves) {
-                    if (last is Action.Move) {
-                        valve.tunnels.filter { it != last.valve }.forEach {
-                            hurry(it, path.plus(Action.Move(valve)), openValves, minutes + 1, newPressure)
-                        }
-                    } else {
-                        valve.tunnels.forEach {
-                            hurry(it, path.plus(Action.Move(valve)), openValves, minutes + 1, newPressure)
-                        }
+                val myLast = myPath.last()
+                val helperLast = helperPath.last()
+
+                val myAvailableActions = mutableListOf<Action>()
+
+                if (myValve !in openValves) {
+                    myAvailableActions.add(Action.Open)
+                }
+
+
+
+                if (myLast is Action.Move) {
+                    myValve.tunnels.filter { it != myLast.valve }.map {
+                        Action.Move(it)
                     }
                 } else {
-                    // open valve
-                    hurry(valve, path.plus(Action.Open), openValves.plus(valve), minutes + 1, newPressure)
-
-                    // but also don't open valve
-                    if (last is Action.Move) {
-                        valve.tunnels.filter { it != last.valve }.forEach {
-                            hurry(it, path.plus(Action.Move(valve)), openValves, minutes + 1, newPressure)
-                        }
-                    } else {
-                        valve.tunnels.forEach {
-                            hurry(it, path.plus(Action.Move(valve)), openValves, minutes + 1, newPressure)
-                        }
+                    myValve.tunnels.map {
+                        Action.Move(it)
                     }
+                }.also {
+                    myAvailableActions.addAll(it)
+//                    println("hello? ${it.size}")
                 }
+                val helperAvailableActions = mutableListOf<Action>()
+
+                // TODO don't open if I did?
+                if (helperValve !in openValves) {
+                    helperAvailableActions.add(Action.Open)
+                }
+
+                if (helperLast is Action.Move) {
+                    helperValve.tunnels.filter { it != helperLast.valve }.map {
+                        Action.Move(it)
+                    }
+                } else {
+                    helperValve.tunnels.map {
+                        Action.Move(it)
+                    }
+                }.also {
+                    helperAvailableActions.addAll(it)
+//                    println("hello elly? ${it.size}")
+                }
+//                println("my ${myAvailableActions.size} help ${helperAvailableActions.size}")
+                myAvailableActions.forEach {myAction -> 
+//                    helperAvailableActions.forEach { helperAction ->
+//                        println("fuck")
+                        val newOpenValves = openValves.toMutableSet()
+                        val newMyValve = if (myAction is Action.Move) {
+                            myAction.valve
+                        } else {
+//                            println("added open action to $myValve")
+                            newOpenValves.add(myValve)
+                            myValve
+                        }
+                        
+//                        val newHelperValve = if (helperAction is Action.Move) {
+//                            helperAction.valve
+//                        } else {
+//                            newOpenValves.add(helperValve)
+//                            helperValve
+//                        }
+                        hurry(newMyValve, helperValve, myPath.plus(myAction), helperPath, newOpenValves, minutes + 1, newPressure)
+//                        hurry(newMyValve, newHelperValve, myPath.plus(myAction), helperPath.plus(helperAction), newOpenValves, minutes + 1, newPressure)
+//                    }
+                }
+
             }
 
         }
 
-        hurry(valves[0], listOf(Action.Initial), openValves = valves.filter { it.flowRate == 0 })
+        hurry(valves[0],valves[0], listOf(Action.Initial),listOf(Action.Initial), openValves = valves.filter { it.flowRate == 0 }.toSet())
 
-//        data class Trip(val cost: Int, val combinedFlow: Int)
-//        val destMap = mutableMapOf<Pair<Valve, Valve>, Trip>()
-//        valves.filter { it.flowRate > 0 }.forEach {valve ->
-//            valve.tunnels.forEach { tunnel ->
-//                val pair = if (valve.name < tunnel.name) {
-//                    valve to tunnel
-//                } else {
-//                    tunnel to valve
-//                }
-//                val max = maxOf(valve.name, tunnel.name)
-//                destMap[pair] = Trip(1, valve.flowRate + tunnel.flowRate)
-//            }
-//        }
-//
-//
-//        destMap.toMutableMap().forEach { destMapEntry ->
-//            destMapEntry.key.second.tunnels.forEach {tunnel ->
-//                val valve = destMapEntry.key.first
-//                if (tunnel != valve) {
-//                    val pair = if (valve.name < tunnel.name) {
-//                        valve to tunnel
-//                    } else {
-//                        tunnel to valve
-//                    }
-//                    val max = maxOf(valve.name, tunnel.name)
-//                    if (!destMap.containsKey(pair)) {
-//                        destMap[pair] = Trip(2, destMapEntry.value.combinedFlow + tunnel.flowRate)
-//                    }
-//                }
-//            }
-//
-//        }
-//
-//        destMap.toList().alsoPrintOnLines()
 
         return "result"
     }
