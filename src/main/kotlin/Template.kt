@@ -35,11 +35,11 @@ class Template(private val input: String) {
 
 private val testInput =
 """
-    
+
 """.trimIndent()
 private val input =
 """
-    
+
 """.trimIndent()
 
 
