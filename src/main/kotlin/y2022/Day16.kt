@@ -1,24 +1,30 @@
 package y2022
 
 import alsoPrintOnLines
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
+@OptIn(ExperimentalTime::class)
 fun main(args: Array<String>) {
-
-    val testInput = Day16(testInput)
-    testInput.part1()
-        .also { println("Part1 test $it") }
-        .also { check(it == "result") }
+    measureTime {
+        val testInput = Day16(testInput)
+        testInput.part1()
+            .also { println("Part1 test $it") }
+            .also { check(it == "result") }
 //    testInput.part2()
 //        .also { println("Part2 test $it") }
 //        .also { check(it == "result") }
 //
-    val realInput = Day16(input)
+        val realInput = Day16(input)
 //    realInput.part1()
 //        .also { println("Part1 real $it") }
 //        .also { check(it == "result") }
 //    realInput.part2()
 //        .also { println("Part2 real $it") }
-//        .also { check(it == "result") }
+//        .also { check(it == "result") } }
+    }.also {
+        println("Took ${it.inWholeSeconds} seconds or ${it.inWholeMilliseconds}ms.")
+    }
 }
 
 sealed class Action {
@@ -26,14 +32,16 @@ sealed class Action {
     object Open : Action()
     object Initial : Action()
 }
+
 class Day16(private val input: String) {
 
     data class Valve(val name: String, val flowRate: Int) {
         val tunnels: MutableList<Valve> = mutableListOf()
     }
+
     fun part1(): String {
         val valves = input.lines().map {
-            val name = it.substring(6,8)
+            val name = it.substring(6, 8)
             val flowRate = it.substringAfter("=").substringBefore(";").toInt()
             Valve(name, flowRate)
         }//.alsoPrintOnLines()
@@ -47,7 +55,7 @@ class Day16(private val input: String) {
 //                println("tunnel $tunnel")
                 valves.first { it.name == tunnel }
             }
-            valves.first { it.name == line.substring(6,8) }.tunnels.addAll(tunnels)
+            valves.first { it.name == line.substring(6, 8) }.tunnels.addAll(tunnels)
         }
 
         var maxPressure: Int = 0
@@ -63,7 +71,7 @@ class Day16(private val input: String) {
             minutes: Int = 1,
             pressureReleased: Int = 0,
         ) {
-            tries++
+//            tries++
             val newPressure = openValves.sumOf { it.flowRate } + pressureReleased
 
             if (minutes == 26) {
@@ -71,9 +79,9 @@ class Day16(private val input: String) {
                     maxPressure = newPressure
                     println("Done: pressure: $newPressure $tries")
                 } else {
-                    if (tries % 1000000 == 0L) {
-                        println("tries $tries $pressureReleased")
-                    }
+//                    if (tries % 1000000 == 0L) {
+//                        println("tries $tries $pressureReleased")
+//                    }
 //                    println("got zero? wtf ${openValves.toList().alsoPrintOnLines()}")
                 }
             } else if (openValves.size == valves.size) {
@@ -122,25 +130,33 @@ class Day16(private val input: String) {
 //                    println("hello elly? ${it.size}")
                 }
 //                println("my ${myAvailableActions.size} help ${helperAvailableActions.size}")
-                myAvailableActions.forEach {myAction -> 
+                myAvailableActions.forEach { myAction ->
 //                    helperAvailableActions.forEach { helperAction ->
 //                        println("fuck")
-                        val newOpenValves = openValves.toMutableSet()
-                        val newMyValve = if (myAction is Action.Move) {
-                            myAction.valve
-                        } else {
+                    val newOpenValves = openValves.toMutableSet()
+                    val newMyValve = if (myAction is Action.Move) {
+                        myAction.valve
+                    } else {
 //                            println("added open action to $myValve")
-                            newOpenValves.add(myValve)
-                            myValve
-                        }
-                        
+                        newOpenValves.add(myValve)
+                        myValve
+                    }
+
 //                        val newHelperValve = if (helperAction is Action.Move) {
 //                            helperAction.valve
 //                        } else {
 //                            newOpenValves.add(helperValve)
 //                            helperValve
 //                        }
-                        hurry(newMyValve, helperValve, myPath.plus(myAction), helperPath, newOpenValves, minutes + 1, newPressure)
+                    hurry(
+                        newMyValve,
+                        helperValve,
+                        myPath.plus(myAction),
+                        helperPath,
+                        newOpenValves,
+                        minutes + 1,
+                        newPressure
+                    )
 //                        hurry(newMyValve, newHelperValve, myPath.plus(myAction), helperPath.plus(helperAction), newOpenValves, minutes + 1, newPressure)
 //                    }
                 }
@@ -149,7 +165,13 @@ class Day16(private val input: String) {
 
         }
 
-        hurry(valves[0],valves[0], listOf(Action.Initial),listOf(Action.Initial), openValves = valves.filter { it.flowRate == 0 }.toSet())
+        hurry(
+            valves[0],
+            valves[0],
+            listOf(Action.Initial),
+            listOf(Action.Initial),
+            openValves = valves.filter { it.flowRate == 0 }.toSet()
+        )
 
 
         return "result"
@@ -162,9 +184,8 @@ class Day16(private val input: String) {
 }
 
 
-
 private val testInput =
-"""
+    """
 Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
 Valve CC has flow rate=2; tunnels lead to valves DD, BB
@@ -177,7 +198,7 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 """.trimIndent()
 private val input =
-"""
+    """
 Valve AA has flow rate=0; tunnels lead to valves BJ, CF, DX, RB, AQ
 Valve EK has flow rate=12; tunnels lead to valves JE, VE, PJ, CS, IX
 Valve HT has flow rate=4; tunnels lead to valves DZ, GA, CI, DE, JS
