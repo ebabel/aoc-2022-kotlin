@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
 class Day17(private val input: String) {
 
     fun debug(log: String) {
-//        println(log)
+        println(log)
     }
     fun part(rocksToTest: Long): String {
 
@@ -61,14 +61,14 @@ class Day17(private val input: String) {
 //                val rockShape = rocks[(workingRockShapeIndex % rocks.size).toInt()]
                 return rockShape.mapIndexed { indexY, rockShapeLine ->
                     rockShapeLine.mapIndexed { indexX, c ->
-                        debug("checking $indexX $indexY $c ")
+//                        debug("checking $indexX $indexY $c ")
                         if (towerFloors.size > workingRockY + indexY) {
-                            debug("${indexX + workingRockX - 1} ${workingRockY + indexY} ${towerFloors[workingRockY + indexY][indexX + workingRockX - 1]}")
-                            debug("${indexX + workingRockX - 1} ${workingRockY + indexY - 1} ${towerFloors[workingRockY + indexY - 1][indexX + workingRockX - 1]}")
+//                            debug("${indexX + workingRockX - 1} ${workingRockY + indexY} ${towerFloors[workingRockY + indexY][indexX + workingRockX - 1]}")
+//                            debug("${indexX + workingRockX - 1} ${workingRockY + indexY - 1} ${towerFloors[workingRockY + indexY - 1][indexX + workingRockX - 1]}")
 //                            debug("${indexX + workingRockX - 1} ${workingRockY+indexY-2} ${towerFloors[workingRockY+indexY+2][indexX+workingRockX-1]}")
                             (c && towerFloors[workingRockY + indexY][indexX + workingRockX - 1])
                         } else {
-                            debug("too high")
+//                            debug("too high")
                             false
                         }
                     }.any { it }
@@ -79,7 +79,7 @@ class Day17(private val input: String) {
         }
 
         fun canGoRight(): Boolean {
-            debug("canGoRight?")
+//            debug("canGoRight?")
             if (towerFloors.size <= workingRockY) {
                 return workingRockX + rockShape.rockWidth() < 7
             } else if (towerFloors.isNotEmpty()) {
@@ -88,14 +88,14 @@ class Day17(private val input: String) {
                 }
 
                 return rockShape.mapIndexed { indexY, rockShapeLine ->
-                    debug("rockLine $rockShapeLine")
+//                    debug("rockLine $rockShapeLine")
                     rockShapeLine.mapIndexed { indexX, c ->
-                        debug("checking $indexX $indexY $c $workingRockY")
+//                        debug("checking $indexX $indexY $c $workingRockY")
                         if (towerFloors.size > workingRockY + indexY) {
-                            debug("${indexX + workingRockX - 1} ${workingRockY+indexY-1} ${towerFloors[workingRockY+indexY][indexX+workingRockX+1]}")
+//                            debug("${indexX + workingRockX - 1} ${workingRockY+indexY-1} ${towerFloors[workingRockY+indexY][indexX+workingRockX+1]}")
                             (c && towerFloors[workingRockY + indexY][indexX + workingRockX + 1])
                         } else {
-                            debug("too high")
+//                            debug("too high")
                             false
                         }
                     }.any { it }
@@ -113,7 +113,7 @@ class Day17(private val input: String) {
 //        }
 
         fun canDrop(): Boolean {
-            debug("canDrop?")
+//            debug("canDrop?")
             if (workingRockY == 0) {
                 return false
             } else if (workingRockY > towerFloors.size) {
@@ -124,19 +124,19 @@ class Day17(private val input: String) {
 //                debug("${towerFloors[workingRockY - 1].subList(workingRockX, workingRockX + rockShape.rockWidth())}")
 
                 rockShape.mapIndexed { indexY, s ->
-                    debug("${towerFloors.size} $workingRockY $indexY")
+//                    debug("${towerFloors.size} $workingRockY $indexY")
                     if (towerFloors.size >= workingRockY + indexY) {
-                        debug("canDrop ${rockShape[indexY]}")
+//                        debug("canDrop ${rockShape[indexY]}")
                         s.mapIndexed { indexX, c ->
-                                (c && towerFloors[workingRockY + indexY - 1][indexX + workingRockX]).also { debug("canDrop check $it") }
-                        }.any { it }.also { debug("canDrop2 returning $it") }
+                                (c && towerFloors[workingRockY + indexY - 1][indexX + workingRockX])//.also { debug("canDrop check $it") }
+                        }.any { it }//.also { debug("canDrop2 returning $it") }
                         // true if conflict
                     } else {
-                        debug("too high")
+//                        debug("too high")
                         false
                     }
                 }.none { it }.also {
-                    debug("canDrop returning $it")
+//                    debug("canDrop returning $it")
                     return (it)
                 }
 
@@ -147,7 +147,7 @@ class Day17(private val input: String) {
 
         fun convertToRest() {
             if (workingRockY == towerFloors.size) {
-                debug("converting")
+//                debug("converting")
 
                 rockShape
                     .map {
@@ -157,15 +157,15 @@ class Day17(private val input: String) {
                         towerFloors.add(it.toMutableList())
                     }
             } else {
-                debug("converting yahoos")
+//                debug("converting yahoos")
                 rockShape
                     .map {
                         val start = (0.until(workingRockX)).map { false }.plus(it)
                         start.plus(start.size.until(7).map { false })
                     }.forEachIndexed { index, rockLine ->
-                        debug("convert $workingRockX $index ${towerFloors.size}")
+//                        debug("convert $workingRockX $index ${towerFloors.size}")
                         if (workingRockY + index <= towerFloors.size - 1) {
-                            debug("${towerFloors[workingRockY + index]}")
+//                            debug("${towerFloors[workingRockY + index]}")
                             val existing = towerFloors[workingRockY + index].toMutableList()
                             towerFloors[workingRockY + index].clear()
                             towerFloors[workingRockY + index].addAll(existing.mapIndexed { index, b ->
@@ -186,10 +186,11 @@ class Day17(private val input: String) {
 
             rockShape = rocks[(workingRockShapeIndex % rocks.size).toInt()]
             val windLeft = input[(workingWind++ % input.length).toInt()] == '<'
-            debug("is wind left? $windLeft")
-            if (windLeft && canGoLeft().also { debug("canGoLeft? $it") }) workingRockX--
+//            debug("is wind left? $windLeft")
+            if (windLeft && canGoLeft()) workingRockX--
+//            if (windLeft && canGoLeft().also { debug("canGoLeft? $it") }) workingRockX--
             if (!windLeft && canGoRight()) workingRockX++
-            debug("workingRockX $workingRockX y $workingRockY")
+//            debug("workingRockX $workingRockX y $workingRockY")
             if (canDrop()) {
                 workingRockY--
             } else {
@@ -230,10 +231,10 @@ class Day17(private val input: String) {
         while (workingRockShapeIndex < rocksToTest) {
 //        repeat(55) {
 //            println(workingRockShapeIndex / rocksToTest.toDouble() * 100f)
-            if (workingRockShapeIndex % 1_000L == 0L) println(workingRockShapeIndex / rocksToTest.toDouble() * 100.0)
+            if (workingRockShapeIndex % 100_000L == 0L) println(workingRockShapeIndex / rocksToTest.toDouble() * 100.0)
             tetris()
 
-            debug(step++)
+//            debug(step++)
         }
 //        }
 
