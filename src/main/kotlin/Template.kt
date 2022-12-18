@@ -5,20 +5,12 @@ import kotlin.time.measureTime
 fun main(args: Array<String>) {
     measureTime {
         val testInput = Template(testInput)
-        testInput.part1()
-            .also { println("Part1 test $it") }
-            .also { check(it == "result") }
-        testInput.part2()
-            .also { println("Part2 test $it") }
-            .also { check(it == "result") }
+        testInput.part1().expecting(0L)
+        testInput.part2().expecting(0L)
 
         val realInput = Template(input)
-        realInput.part1()
-            .also { println("Part1 real $it") }
-            .also { check(it == "result") }
-        realInput.part2()
-            .also { println("Part2 real $it") }
-            .also { check(it == "result") }
+        realInput.part1().expecting(0L)
+        realInput.part2().expecting(0L)
     }.also {
         println("Took ${it.inWholeSeconds} seconds or ${it.inWholeMilliseconds}ms.")
     }
@@ -26,14 +18,14 @@ fun main(args: Array<String>) {
 
 class Template(private val input: String) {
 
-    fun part1(): String {
+    fun part1(): Long {
 
-        return "result"
+        return -1
     }
 
-    fun part2(): String {
+    fun part2(): Long {
 
-        return "result"
+        return -1
     }
 }
 

@@ -190,3 +190,11 @@ fun Point.dist2(x: Int, y: Int): Int {
     val dy = this.y - y
     return dx * dx + dy * dy
 }
+
+fun Long.expecting(expectation: Long) {
+    if (this == expectation) {
+        println("Answer found! $this")
+    } else {
+        error("Expecting $expectation, found $this. Off by ${expectation - this}")
+    }
+}
