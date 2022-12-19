@@ -2,7 +2,7 @@ package y2022
 
 fun main(args: Array<String>) {
 
-    val testInput = Template(testInput)
+    val testInput = Day10(testInput)
     testInput.part1()
         .also { println("Part1 test $it") }
         .also { check(it == "13140") }
@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
 ########       #######       #######     
 """.trim()) }
 
-    val realInput = Template(input)
+    val realInput = Day10(input)
     realInput.part1()
         .also { println("Part1 real $it") }
         .also { check(it == "14360") }
@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
 //""".trim()) } // BGKAEREZ
 }
 
-class Template(private val input: String) {
+class Day10(private val input: String) {
 
     fun part1(): String {
 

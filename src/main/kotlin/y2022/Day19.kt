@@ -1,3 +1,4 @@
+package y2022
 
 import expecting
 import kotlin.time.ExperimentalTime
@@ -6,11 +7,11 @@ import kotlin.time.measureTime
 @OptIn(ExperimentalTime::class)
 fun main(args: Array<String>) {
     measureTime {
-        val testInput = Template(testInput)
+        val testInput = Day19(testInput)
         testInput.part1().expecting(0L)
         testInput.part2().expecting(0L)
 
-        val realInput = Template(input)
+        val realInput = Day19(input)
         realInput.part1().expecting(0L)
         realInput.part2().expecting(0L)
     }.also {
@@ -18,7 +19,7 @@ fun main(args: Array<String>) {
     }
 }
 
-class Template(private val input: String) {
+class Day19(private val input: String) {
 
     fun part1(): Long {
 
