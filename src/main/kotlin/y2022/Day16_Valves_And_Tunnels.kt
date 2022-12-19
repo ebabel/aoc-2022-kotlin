@@ -1,6 +1,5 @@
 package y2022
 
-import alsoPrintOnLines
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
