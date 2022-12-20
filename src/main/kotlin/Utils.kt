@@ -6,9 +6,11 @@ fun main() {
 //            println(it.joinToString(","))
 //        }
 
-    permutationSet2(15).forEach {
-        println(it)
-    }
+
+
+//    permutationSet2(15).forEach {
+//        println(it)
+//    }
 }
 
 fun factorial(num: Int) = (1..num).reduce(Int::times)
