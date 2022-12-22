@@ -31,6 +31,54 @@ sealed class Direction{
 
 class Day22(private val input: String) {
 
+    /**
+     *  21
+     *  3
+     * 54
+     * 6
+     */
+    fun positionToCubePart(point: Point): Int {
+        if (point.x > 100) return 1
+        if (point.x < 51 && point.y > 150) return 6
+        if (point.x < 51) return 5
+        if (point.y < 51) return 2
+        if (point.y < 101) return 3
+        return 4
+    }
+
+    fun transition(point: Point, direction: Int) {
+        if (positionToCubePart(point) == 1 && direction == 0) { // right
+            // go to 4's right side, going left, inverted
+        } else if (positionToCubePart(point) == 1 && direction == 1) { // down
+            // go to 3's right side, going left,
+        } else if (positionToCubePart(point) == 1 && direction == 3) { // up
+            // go to 6's bottom side, going up, or just x - 100, y + 150
+        } else if (positionToCubePart(point) == 2 && direction == 3) { // up
+            // go to 6's left side, going right,
+        } else if (positionToCubePart(point) == 2 && direction == 2) { // left
+            // go to 5's left side, going right,
+        } else if (positionToCubePart(point) == 3 && direction == 0) { // right
+            // go to 1's bottom side, going up,
+        } else if (positionToCubePart(point) == 3 && direction == 2) { // left
+            // go to 5's top side, going down,
+        } else if (positionToCubePart(point) == 4 && direction == 0) { // right
+            // go to 1's right side, going left,
+        } else if (positionToCubePart(point) == 4 && direction == 0) { // right
+            // go to 6's right side, going left,
+        } else if (positionToCubePart(point) == 5 && direction == 2) { // left
+            // go to 2's left side, going right,
+        } else if (positionToCubePart(point) == 5 && direction == 3) { // up
+            // go to 3's left side, going right,
+        } else if (positionToCubePart(point) == 6 && direction == 0) { // right
+            // go to 4's bottom side, going up,
+        } else if (positionToCubePart(point) == 6 && direction == 2) { // left
+            // go to 2's top side, going down,
+        } else if (positionToCubePart(point) == 6 && direction == 1) { // down
+            // go to 1's top side, going down,
+        }
+    }
+
+
     fun part1(): Long {
         val lines = input.split("\n\n")
         var previousIndex = 0
