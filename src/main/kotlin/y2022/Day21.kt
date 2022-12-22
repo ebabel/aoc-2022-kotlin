@@ -11,8 +11,8 @@ fun main(args: Array<String>) {
 //        testInput.part2().expecting(0L)
 //
         val realInput = Day21(input)
-//        realInput.part1().expecting(0L)
-        realInput.part2().expecting(0L)
+        realInput.part1().expecting(155708040358220L)
+        realInput.part2().expecting(3342154812537L)
     }.also {
         println("Took ${it.inWholeSeconds} seconds or ${it.inWholeMilliseconds}ms.")
     }
@@ -50,10 +50,9 @@ class Day21(private val input: String) {
                 }
             }
         }
-        println("resolve ${resolve(root)}")
+
         
-        
-        return -1
+        return resolve(root)
     }
 
     fun part2(): Long {
@@ -66,9 +65,10 @@ class Day21(private val input: String) {
         val mathMonkeys = lines.filter { it.size > 2 }
 
         val root = mathMonkeys.first { it[0] == "root" }
-        var human = 3342154812380L
+        var human = 0L
         var root1 = 0L
         var root2 = 1L
+        var matchingOffBy = 0L
 
         fun resolve (monkey: List<String>): Long {
             if (monkey.size == 2) {
@@ -94,19 +94,21 @@ class Day21(private val input: String) {
                     if (monkey.first() == "root") {
                         root1 = monkey1Resolved
                         root2 = monkey2Resolved
-                        println("root $monkey1Resolved $monkey2Resolved ${monkey1Resolved-monkey2Resolved} $human")
+                        matchingOffBy = monkey1Resolved - monkey2Resolved
+//                        println("root $monkey1Resolved $monkey2Resolved ${monkey1Resolved-monkey2Resolved} $human")
                     }
                 }
             }
         }
 
         while (root1 != root2) {
-            println("resolve ${resolve(root)}")
-            human++
+            val resolved = resolve(root)
+//            println("resolve ${resolved}")
+            human += matchingOffBy / 100
         }
 
 
-        return -1
+        return human
     }
 }
 
