@@ -1,4 +1,5 @@
 package y2022
+
 import Point
 import alsoPrintOnLines
 import expecting
@@ -12,18 +13,18 @@ import kotlin.time.measureTime
 fun main(args: Array<String>) {
     measureTime {
         val testInput = Day22(testInput)
-//        testInput.part1().expecting(6032L)
+        testInput.part1().expecting(6032L)
 //        testInput.part2().expecting(0L)
 //
         val realInput = Day22(input)
         realInput.part1().expecting(80392)
-//        realInput.part2().expecting(0L)
+        realInput.part2().expecting(19534L)
     }.also {
         println("Took ${it.inWholeSeconds} seconds or ${it.inWholeMilliseconds}ms.")
     }
 }
 
-sealed class Direction{
+sealed class Direction {
     data class Forward(val a: Int) : Direction()
     object Left : Direction()
     object Right : Direction()
@@ -31,55 +32,290 @@ sealed class Direction{
 
 class Day22(private val input: String) {
 
-    /**
-     *  21
-     *  3
-     * 54
-     * 6
-     */
-    fun positionToCubePart(point: Point): Int {
-        if (point.x > 100) return 1
-        if (point.x < 51 && point.y > 150) return 6
-        if (point.x < 51) return 5
-        if (point.y < 51) return 2
-        if (point.y < 101) return 3
-        return 4
-    }
 
-    fun transition(point: Point, direction: Int) {
-        if (positionToCubePart(point) == 1 && direction == 0) { // right
-            // go to 4's right side, going left, inverted
-        } else if (positionToCubePart(point) == 1 && direction == 1) { // down
-            // go to 3's right side, going left,
-        } else if (positionToCubePart(point) == 1 && direction == 3) { // up
-            // go to 6's bottom side, going up, or just x - 100, y + 150
-        } else if (positionToCubePart(point) == 2 && direction == 3) { // up
-            // go to 6's left side, going right,
-        } else if (positionToCubePart(point) == 2 && direction == 2) { // left
-            // go to 5's left side, going right,
-        } else if (positionToCubePart(point) == 3 && direction == 0) { // right
-            // go to 1's bottom side, going up,
-        } else if (positionToCubePart(point) == 3 && direction == 2) { // left
-            // go to 5's top side, going down,
-        } else if (positionToCubePart(point) == 4 && direction == 0) { // right
-            // go to 1's right side, going left,
-        } else if (positionToCubePart(point) == 4 && direction == 0) { // right
-            // go to 6's right side, going left,
-        } else if (positionToCubePart(point) == 5 && direction == 2) { // left
-            // go to 2's left side, going right,
-        } else if (positionToCubePart(point) == 5 && direction == 3) { // up
-            // go to 3's left side, going right,
-        } else if (positionToCubePart(point) == 6 && direction == 0) { // right
-            // go to 4's bottom side, going up,
-        } else if (positionToCubePart(point) == 6 && direction == 2) { // left
-            // go to 2's top side, going down,
-        } else if (positionToCubePart(point) == 6 && direction == 1) { // down
-            // go to 1's top side, going down,
-        }
-    }
+    private val RIGHT = 0
+    private val DOWN = 1
+    private val LEFT = 2
+    private val UP = 3
+    private val allDirections = listOf(
+        Point(1, 0),
+        Point(0, 1),
+        Point(-1, 0),
+        Point(0, -1),
+    )
+
+    private val allDirectionsDebug = listOf(
+        '>',
+        'v',
+        '<',
+        '^',
+    )
 
 
     fun part1(): Long {
+
+        val (directions, map) = parseInput()
+        var position = Point(map.first().indexOfFirst { it == '.' }, 0)
+
+
+        var currentDirection = 0
+
+        val workingMap = map.map { it.toMutableList() }.toMutableList()
+
+        directions.forEach {
+            when (it) {
+                is Direction.Forward -> {
+                    var toMove = it.a
+
+                    while (toMove > 0) {
+                        var nextPosition = (position + allDirections[currentDirection])
+
+                        when (currentDirection) {
+                            RIGHT -> {
+                                val range = map[nextPosition.y].withIndex().filterNot { it.value == ' ' }
+                                nextPosition = if (nextPosition.x > range.last().index) {
+                                    if (range.first().value != '#') {
+                                        Point(range.first().index, nextPosition.y)
+                                    } else {
+                                        position
+                                    }
+                                } else {
+                                    nextPosition.also { check(it.y >= 0) }
+                                }
+                            }
+
+                            DOWN -> {
+                                val range = map.withIndex().map { it.index to it.value[nextPosition.x] }
+                                    .filterNot { it.second == ' ' }
+                                nextPosition = if (nextPosition.y > range.last().first) {
+                                    if (range.first().second != '#') {
+                                        Point(nextPosition.x, range.first().first)
+                                    } else {
+                                        position
+                                    }
+                                } else {
+                                    nextPosition.also { check(it.y >= 0) }
+                                }
+                            }
+
+                            LEFT -> {
+
+                                val range = map[nextPosition.y].withIndex().filterNot { it.value == ' ' }
+                                nextPosition = if (nextPosition.x < range.first().index) {
+                                    if (range.first().value != '#') {
+                                        Point(range.last().index, nextPosition.y)
+                                    } else {
+                                        position
+                                    }
+                                } else {
+                                    nextPosition.also { check(it.y >= 0) }
+                                }
+                            }
+
+                            UP -> {
+
+                                val range = map.withIndex().map { it.index to it.value[nextPosition.x] }
+                                    .filterNot { it.second == ' ' }
+                                nextPosition = if (nextPosition.y < range.first().first) {
+                                    if (range.first().second != '#') {
+                                        Point(nextPosition.x, range.last().first).also { check(it.y >= 0) }
+                                    } else {
+                                        position.also { check(it.y >= 0) }
+                                    }
+                                } else {
+                                    nextPosition.also { check(it.y >= 0) }
+                                }
+                            }
+                        }
+
+                        if (map[nextPosition.y][nextPosition.x] != '#') {
+                            position = nextPosition
+
+                            workingMap[position.y][position.x] = allDirectionsDebug[currentDirection]
+                            check(position.y >= 0 && position.x >= 0)
+                        }
+
+                        println("---- current = $position nexPos $nextPosition forward $toMove")
+                        toMove--
+                    }
+                }
+
+                is Direction.Right -> {
+                    currentDirection++
+                    currentDirection %= allDirections.size
+                    println("turn right now: ${allDirections[currentDirection]}")
+                }
+
+                is Direction.Left -> {
+                    currentDirection--
+                    currentDirection %= allDirections.size
+                    if (currentDirection < 0) currentDirection += allDirections.size
+                    println("turn left now: ${allDirections[currentDirection]}")
+
+                }
+            }
+
+        }
+        workingMap[position.y][position.x] = 'E'
+        workingMap.map { it.joinToString("") }.alsoPrintOnLines()
+        println("end position = $position")
+        println("end direction = $currentDirection")
+
+        return (1000 * (position.y + 1) + 4 * (position.x + 1) + currentDirection).toLong()
+    }
+
+    /**
+     *                   y's
+     *        21   -    0-49
+     *        3    -   50-99
+     *       54    -  100-149
+     *       6     -  150-199
+     *
+     *         1
+     *        50
+     *       000
+     *  x's  |||
+     *       491
+     *       994
+     *         9
+     */
+    fun positionToCubePart(point: Point): Int {
+        if (point.x > 99) return 1
+        if (point.x < 50 && point.y > 149) return 6
+        if (point.x < 50) return 5
+        if (point.y < 50) return 2
+        if (point.y < 100) return 3
+        return 4
+    }
+
+    fun transition(point: Point, direction: Int): Pair<Point, Int> {
+        val positionToCubePart = positionToCubePart(point)
+        return if (positionToCubePart == 1 && direction == RIGHT) {
+            // go to 4's right side, going left, inverted
+            // y 0-49 to 149-100
+            Point(99, 149 - point.y) to LEFT
+        } else if (positionToCubePart == 1 && direction == DOWN) {
+            // go to 3's right side, going left,
+            // x 100-149 to y 50-99
+            Point(99, point.x - 50) to LEFT
+        } else if (positionToCubePart == 1 && direction == UP) {
+            // go to 6's bottom side, going up, or just x - 100, y + 150
+            // x 100-149 to x0-49;
+            Point(point.x - 100, 199) to UP
+        } else if (positionToCubePart == 2 && direction == UP) {
+            // go to 6's left side, going right,
+            // x 50-99 to y 150-199
+            Point(0, point.x + 100) to RIGHT
+        } else if (positionToCubePart == 2 && direction == LEFT) {
+            // go to 5's left side, going right, inverted
+            // y from 0-49 to 149-100
+            println("2 left")
+            Point(0, 149 - point.y) to RIGHT
+        } else if (positionToCubePart == 3 && direction == RIGHT) {
+            // go to 1's bottom side, going up,
+            // y from 50-99 to x 100-149
+            Point(point.y + 50, 49) to UP
+        } else if (positionToCubePart == 3 && direction == LEFT) {
+            // go to 5's top side, going down,
+            // y from 50-99 to x 0-50
+            Point(point.y - 50, 100) to DOWN
+        } else if (positionToCubePart == 4 && direction == RIGHT) {
+            // go to 1's right side, going left, inv
+            // y from 100-149 to 49-0
+            Point(149, 149 - point.y) to LEFT
+        } else if (positionToCubePart == 4 && direction == DOWN) {
+            // go to 6's right side, going left,
+            // x 50-99 to y 150-199
+            Point(49, point.x + 100) to LEFT
+        } else if (positionToCubePart == 5 && direction == LEFT) {
+            // go to 2's left side, going right, inv
+            // y 100-149 to y 49-0
+            Point(50, 149 - point.y) to RIGHT
+        } else if (positionToCubePart == 5 && direction == UP) {
+            // go to 3's left side, going right,
+            // x 0-49 to y 50-99
+            Point(50, point.x + 50) to RIGHT
+        } else if (positionToCubePart == 6 && direction == RIGHT) {
+            // go to 4's bottom side, going up,
+            // y 150-199 to x 50-99
+            Point(point.y - 100, 149) to UP
+        } else if (positionToCubePart == 6 && direction == LEFT) {
+            // go to 2's top side, going down,
+            // y150-199 to x50-99
+            Point(point.y - 100, 0) to DOWN
+
+        } else if (positionToCubePart == 6 && direction == DOWN) {
+            // go to 1's top side, going down,
+            // x 0-49 to x 100-149
+            Point(point.x + 100, 0).also { check(positionToCubePart(it) == 1) } to DOWN
+        } else error("hmmmmm $positionToCubePart $direction")
+    }
+
+
+    fun part2(): Long {
+        val (directions, map) = parseInput()
+
+        var position = Point(map.first().indexOfFirst { it == '.' }, 0)
+
+        var currentDirection = 0
+
+        val workingMap = map.map { it.toMutableList() }.toMutableList()
+
+        directions.forEach {
+            if (it is Direction.Forward) {
+                var toMove = it.a
+
+                while (toMove > 0) {
+                    var nextPosition = (position + allDirections[currentDirection])
+                    var nextDirection = currentDirection
+                    val coercedY = nextPosition.y.coerceIn(0 until map.size)
+                    val coercedX = nextPosition.x.coerceIn(0 until map[0].length)
+
+                    val rangeX = map[coercedY].withIndex().filterNot { it.value == ' ' }
+                    val rangeY = map.withIndex().map { it.index to it.value[coercedX] }.filterNot { it.second == ' ' }
+                    val xIsOut =
+                        rangeX.isEmpty() || nextPosition.x > rangeX.last().index || nextPosition.x < rangeX.first().index
+                    val yIsOut =
+                        rangeY.isEmpty() || nextPosition.y > rangeY.last().first || nextPosition.y < rangeY.first().first
+                    if (xIsOut || yIsOut) {
+                        val (tmpPosition, tmpDirection) = transition(position, currentDirection)
+                        nextPosition = tmpPosition.also { check(it.x >= 0) }
+                        nextDirection = tmpDirection
+                    }
+
+
+                    if (map[nextPosition.y][nextPosition.x] != '#') {
+                        position = nextPosition
+                        currentDirection = nextDirection
+
+                        workingMap[position.y][position.x] = allDirectionsDebug[currentDirection]
+                        check(position.y >= 0 && position.x >= 0)
+                    } else {
+                        break
+                    }
+
+                    println("---- current = $position nexPos $nextPosition forward $toMove")
+                    toMove--
+                }
+            } else if (it is Direction.Right) {
+                currentDirection++
+                currentDirection %= allDirections.size
+            } else if (it is Direction.Left) {
+                currentDirection--
+                currentDirection %= allDirections.size
+                if (currentDirection < 0) currentDirection += allDirections.size
+            }
+
+        }
+        workingMap[position.y][position.x] = 'E'
+        workingMap.map { it.joinToString("") }.alsoPrintOnLines()
+        println("end position = $position")
+        println("end direction = $currentDirection")
+
+        return (1000 * (position.y + 1) + 4 * (position.x + 1) + currentDirection).toLong()
+    }
+
+    private fun parseInput(): Pair<MutableList<Direction>, List<String>> {
         val lines = input.split("\n\n")
         var previousIndex = 0
         val directions = mutableListOf<Direction>()
@@ -99,193 +335,14 @@ class Day22(private val input: String) {
         }
         directions.add(Direction.Forward(lines[1].substring(previousIndex).toInt()))
 
-        directions.alsoPrintOnLines()
-
-
         val map = lines[0].split("\n").map { it.padEnd(lines.first().length) }
-        var position = Point(map.first().indexOfFirst { it == '.' }, 0)
-
-        val allDirections = listOf(
-            Point(1,0),
-            Point(0,1),
-            Point(-1,0),
-            Point(0,-1),
-        )
-
-        val allDirectionsDebug = listOf(
-            '>',
-            'v',
-            '<',
-            '^',
-        )
-
-        var currentDirection = 0
-
-        println("current = $position")
-
-        val workingMap = map.map { it.toMutableList() }.toMutableList()
-
-        directions.forEach {
-            if (it is Direction.Forward) {
-                var toMove = it.a
-
-//                println("asdfffff22 ${map[nextPosition.y][nextPosition.x].toString()}")
-                while (toMove > 0) {
-                    var nextPosition = (position + allDirections[currentDirection])
-                    println("forward $toMove nexPos $nextPosition")
-
-                    when (currentDirection) {
-                        0 -> {// right
-
-                            val range = map[nextPosition.y].withIndex().filterNot { it.value == ' ' }
-                            nextPosition = if (nextPosition.x > range.last().index) {
-                                if (range.first().value != '#') {
-                                    Point(range.first().index, nextPosition.y)
-                                } else {
-                                    position
-                                }
-                            } else {
-                                nextPosition.also { check(it.y >= 0) }
-                            }
-                        }
-                        1 -> {// down
-
-                            val range = map.withIndex().map { it.index to it.value[nextPosition.x] }.filterNot { it.second == ' ' }
-                            nextPosition = if (nextPosition.y > range.last().first) {
-                                if (range.first().second != '#') {
-                                    Point(nextPosition.x, range.first().first)
-                                } else {
-                                    position
-                                }
-                            } else {
-                                nextPosition.also { check(it.y >= 0) }
-                            }
-                        }
-                        2 -> {// left
-
-                            val range = map[nextPosition.y].withIndex().filterNot { it.value == ' ' }
-                            nextPosition = if (nextPosition.x < range.first().index) {
-                                if (range.first().value != '#') {
-                                    Point(range.last().index, nextPosition.y)
-                                } else {
-                                    position
-                                }
-                            } else {
-                                nextPosition.also { check(it.y >= 0) }
-                            }
-                        }
-                        3 -> {// up
-
-                            val range = map.withIndex().map { it.index to it.value[nextPosition.x] }.filterNot { it.second == ' ' }
-//                            println("range $range $nextPosition")
-                            nextPosition = if (nextPosition.y < range.first().first) {
-                                if (range.first().second != '#') {
-                                    Point(nextPosition.x, range.last().first).also { check(it.y >= 0) }
-                                } else {
-                                    position.also { check(it.y >= 0) }
-                                }
-                            } else {
-                                nextPosition.also { check(it.y >= 0) }
-                            }
-                        }
-                    }
-
-//
-//                    if (nextPosition.y !in map.indices || nextPosition.x !in 0 until map[0].length || map[nextPosition.y][nextPosition.x] == ' ') {
-//                        val tempDir =
-//                            Point(allDirections[currentDirection].x * -1, allDirections[currentDirection].y * -1)
-//                        nextPosition += tempDir // undo last move
-////                        nextPosition += tempDir // undo last move
-//                        val tempPosition = nextPosition
-//                        println("tempDir1 $tempDir nextPosition1 $nextPosition")
-//                        while (true) {
-//                            // reversing
-//                            // if nextPos is out of bounds,
-//                            val nextNextPosition = nextPosition + tempDir
-//                            if (nextNextPosition.y in 0 until (map.size) && nextNextPosition.x in 0 until (map[0].length)
-//                                && (map[nextNextPosition.y][nextNextPosition.x] == '.' || map[nextNextPosition.y][nextNextPosition.x] == '#')) {
-//
-//                                nextPosition += tempDir
-//
-//                                check(nextPosition.y >= 0)
-//
-////                                println("tempDir3 $tempDir nextPosition1 $nextPosition")
-//
-//                            } else {
-////                                println("found space ${map[nextPosition.y][nextPosition.x]}")
-//
-////                                nextPosition += allDirections[currentDirection]
-////                                check(nextPosition.y >= 0)
-//                                break
-//                            }
-////                            println("tempDir3 $tempDir nextPosition1 $nextPosition")
-//                        }
-//                        println("done with rewind")
-//                        if (map[nextPosition.y][nextPosition.x] == '#') {
-//                            println("undo rewind")
-//                            nextPosition = tempPosition
-//                            break
-//                        }
-//                    } else if (map[nextPosition.y][nextPosition.x] == '#') {
-//                        break
-//                    }
-
-
-                    if (map[nextPosition.y][nextPosition.x] != '#') {
-                        position = nextPosition
-
-                        workingMap[position.y][position.x] = allDirectionsDebug[currentDirection]
-                        check(position.y >= 0)
-                    }
-
-//                    workingMap[nextPosition.y][nextPosition.x] = allDirectionsDebug[currentDirection]
-//                    println("asdfffff43 ${map[nextPosition.y][nextPosition.x].toString()}")
-
-                    println("---- current = $position nexPos $nextPosition forward $toMove")
-                    toMove--
-
-                    // if map[nextPosition.y][nextPosition.x] is space or index out of range:
-                    // wrap around
-//                    try {
-//                        println("nextChar = ${map[nextPosition.y][nextPosition.x]}")
-//                    } catch (e: Exception) {
-////                        e.printStackTrace()
-//                    }
-
-                }
-            } else if (it is Direction.Right) {
-                currentDirection++
-                currentDirection %= allDirections.size
-                println("turn right now: ${allDirections[currentDirection]}")
-            } else if (it is Direction.Left) {
-                currentDirection--
-                currentDirection %= allDirections.size
-                if (currentDirection < 0) currentDirection += allDirections.size
-                println("turn left now: ${allDirections[currentDirection]}")
-
-            }
-
-        }
-        workingMap[position.y][position.x] = 'E'
-        workingMap.map { it.joinToString("") }.alsoPrintOnLines()
-        println("end position = $position")
-        println("end direction = $currentDirection")
-
-        return (1000 * (position.y+1) + 4 * (position.x + 1) + currentDirection).toLong()
-    }
-    // 12488 too low
-    // 80384 80384 80392 [95, 79]    (79, 97, 0)
-    // 130368 too high
-
-    fun part2(): Long {
-
-        return -1
+        return Pair(directions, map)
     }
 }
 
 
 private val testInput =
-"""
+    """
         ...#
         .#..
         #...
@@ -302,7 +359,7 @@ private val testInput =
 10R5L5R10L4R5L5
 """.trimIndent()
 private val input =
-"""
+    """
                                                   ....##......#...#....#..............................................#....#....#.#..#.#..........#...
                                                   #.......#................#....#...........#..........##............#..#.............#.#...#.#.......
                                                   ................#..................#..#.................#...#............#.................#...#....
