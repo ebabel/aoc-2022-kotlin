@@ -11,11 +11,11 @@ fun main(args: Array<String>) {
     measureTime {
         val testInput = Day23(testInput)
 //        testInput.part1().expecting(110L)
-//        testInput.part2().expecting(0L)
+//        testInput.part1().expecting(0L)
 //
         val realInput = Day23(input)
-        realInput.part1().expecting(3862L)
-//        realInput.part2().expecting(0L)
+//        realInput.part1().expecting(3862L)
+        realInput.part1().expecting(913L)
     }.also {
         println("Took ${it.inWholeSeconds} seconds or ${it.inWholeMilliseconds}ms.")
     }
@@ -118,8 +118,9 @@ class Day23(private val input: String) {
         println()
 
 
-
-        repeat(10){
+        var movesHappened = true
+        while (movesHappened) {
+            movesHappened = false
             val pointsRequested = mutableListOf<Point>()
 
             elves.forEach { elf ->
@@ -129,18 +130,18 @@ class Day23(private val input: String) {
                     (0..3).map {
                         (it + currentlyFirstLook)%4
                     }.firstOrNull { dir ->
-                        println("looking at $dir $currentlyFirstLook ${dir}")
+//                        println("looking at $dir $currentlyFirstLook ${dir}")
                         elves.map { it.point }.none { it in look(elf, dir) }
                     }?.let {
                         val nextPoint = elf.point + allOrthoDirections[it]
-                        println("elf moving $it ${allOrthoDirections[it]} to $nextPoint")
+//                        println("elf moving $it ${allOrthoDirections[it]} to $nextPoint")
                         pointsRequested.add(nextPoint)
                         elf.nextPoint = nextPoint
                     } ?: run {
-                        println("elf not moving")
+//                        println("elf not moving")
                     }
                 } else {
-                    println("elf not moving")
+//                    println("elf not moving")
                     // do not move
                 }
 
@@ -151,6 +152,7 @@ class Day23(private val input: String) {
                     // do not move
                     elf.nextPoint = null
                 } else {
+                    movesHappened = true
                     elf.point = elf.nextPoint!!
                 }
             }
@@ -158,25 +160,26 @@ class Day23(private val input: String) {
             elves.forEach { it.nextPoint = null }
 
 
-            println("miny ${elves.minOf { it.point.y }}")
-            var y = elves.minOf { it.point.y }
-
-            (elves.minOf { it.point.y }..elves.maxOf { it.point.y }).forEachIndexed { indexY, y ->
-                (elves.minOf { it.point.x }..elves.maxOf { it.point.x }).forEach {x ->
-//                    println("indexy $indexY")
-                    if (Point(x, y) in elves.map { it.point }) {
-                        print("#")
-                    } else {
-                        print(".")
-                    }
-                }
-                println("  $y")
-            }
-            println()
-            println()
-            println()
+//            println("miny ${elves.minOf { it.point.y }}")
+//            var y = elves.minOf { it.point.y }
+//
+//            (elves.minOf { it.point.y }..elves.maxOf { it.point.y }).forEachIndexed { indexY, y ->
+//                (elves.minOf { it.point.x }..elves.maxOf { it.point.x }).forEach {x ->
+////                    println("indexy $indexY")
+//                    if (Point(x, y) in elves.map { it.point }) {
+//                        print("#")
+//                    } else {
+//                        print(".")
+//                    }
+//                }
+//                println("  $y")
+//            }
+//            println()
+//            println()
+//            println()
 
             currentlyFirstLook++
+            println("curr $currentlyFirstLook")
         }
 
 
@@ -185,7 +188,8 @@ class Day23(private val input: String) {
 
         println("xSize $xSize ySize $ySize")
 
-        return (xSize * ySize - elves.size).toLong()
+        return currentlyFirstLook.toLong()
+//        return (xSize * ySize - elves.size).toLong()
     }
 
     fun part2(): Long {
