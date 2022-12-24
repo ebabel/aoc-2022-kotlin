@@ -198,6 +198,6 @@ fun Long.expecting(expectation: Long) {
     if (this == expectation) {
         println("Answer found! $this")
     } else {
-        error("Expecting $expectation, found $this. Off by ${expectation - this}")
+        System.err.println("Expecting $expectation, found $this. Off by ${expectation - this}")
     }
 }
