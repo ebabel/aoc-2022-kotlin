@@ -1,6 +1,8 @@
 # aoc-2022-kotlin
+
 AdventOfCode Kotlin xmas coding challenges
 
+44 stars
 
 1. **
 2. **
